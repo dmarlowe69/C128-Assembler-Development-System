@@ -1,0 +1,27 @@
+[C128]
+InitialDefaultDir="C:\Users\Denton\Desktop\MADS Commdore 128"
+Window1Xpos=157
+Window1Ypos=66
+Window1Width=592
+Window1Height=594
+Window0Xpos=175
+Window0Ypos=175
+SoundDeviceName="dx"
+SoundBufferSize=100
+MachineVideoStandard=2
+CIA1Model=0
+CIA2Model=0
+VICIIVideoCache=1
+VDCVideoCache=1
+VDC64KB=0
+VDCRevision=1
+SidEngine=1
+SidModel=0
+IECDevice4=1
+Printer4=1
+DriveSoundEmulation=1
+Drive8Type=1542
+Drive9Type=1542
+ETHERNETCARTBase=56832
+Acia1Base=56832
+

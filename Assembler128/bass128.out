@@ -1,0 +1,16 @@
+
+C:\Users\Denton\Desktop\MADS Commdore 128\bass128 tass>64tass bass128.asm -L bass128.lst -o bass128.prg  
+64tass Turbo Assembler Macro V1.53.1515
+64TASS comes with ABSOLUTELY NO WARRANTY; This is free software, and you
+are welcome to redistribute it under certain conditions; See LICENSE!
+
+Assembling file:   bass128.asm
+Assembling file:   ass64.asm
+Assembling file:   assvartab64.asm
+Assembling file:   asstable64.asm
+Error messages:    None
+Warning messages:  None
+Passes:            3
+Memory range:      $1c01-$424d   $264d
+
+C:\Users\Denton\Desktop\MADS Commdore 128\bass128 tass>rem pause 

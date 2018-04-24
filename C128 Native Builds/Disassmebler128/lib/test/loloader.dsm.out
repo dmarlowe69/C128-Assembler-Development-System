@@ -1,0 +1,594 @@
+
+DISASSEMBLER64.......PAGE 0001
+
+LINE# LOC   CODE        LINE
+
+
+00001  0801              *=$0801
+00002  0801              ;********************************
+00003  0801              ; EXTERNAL ADDRESS EQUATES
+00004  0801              ;********************************
+00005  0801              SETLFS=$FFBA
+00006  0801              SETNAM=$FFBD
+00007  0801              OPEN=$FFC0
+00008  0801              CLOSE=$FFC3
+00009  0801              CHKIN=$FFC6
+00010  0801              CLRCHN=$FFCC
+00011  0801              CHRIN=$FFCF
+00012  0801              CHROUT=$FFD2
+00013  0801              STOP=$FFE1
+00014  0801              ;********************************
+00015  0801  0D 08 0A           ORA XX0A08
+00016  0804  00                 BRK 
+00017  0805              ;********************************
+00018  0805  9E                   .BYTE $9E ;??? ILLEGAL OPCODE
+00019  0806  28                 PLP 
+00020  0807  32                   .BYTE $32  ;'2' ;??? ILLEGAL OPCODE
+00021  0808  30 36              BMI XX0840
+00022  080A  33                   .BYTE $33  ;'3' ;??? ILLEGAL OPCODE
+00023  080B  29 00              AND #$00
+00024  080D  00                 BRK 
+00025  080E              ;********************************
+00026  080E  00                 BRK 
+00027  080F              ;********************************
+00028  080F  20 CC FF    XX080F JSR CLRCHN
+00029  0812  A9 00              LDA #$00
+00030  0814  8D 6A 0A           STA XX0A6A
+00031  0817  8D 6B 0A           STA XX0A6B
+00032  081A  8D 67 0A           STA XX0A67
+00033  081D  8D 68 0A           STA XX0A68
+00034  0820  85 90              STA $90
+00035  0822  A2 4B              LDX #$4B      ;'K'
+00036  0824  20 AD 09           JSR XX09AD
+00037  0827  20 F1 09           JSR XX09F1
+00038  082A  90 E3              BCC XX080F
+00039  082C  A2 A5              LDX #$A5
+00040  082E  20 AD 09           JSR XX09AD
+00041  0831  A2 28              LDX #$28      ;'('
+00042  0833  8E 6C 0A           STX XX0A6C
+00043  0836  CE 6C 0A    XX0836 DEC XX0A6C
+00044  0839  F0 D4              BEQ XX080F
+00045  083B  20 CF FF           JSR CHRIN
+00046  083E  C9 20              CMP #$20      ;' '
+00047  0840  F0 F4       XX0840 BEQ XX0836
+00048  0842  C9 0D              CMP #$0D
+00049  0844  D0 03              BNE XX0849
+00050  0846  4C 87 09           JMP XX0987
+00051  0849              ;********************************
+00052  0849  A2 00       XX0849 LDX #$00
+00053  084B  8E 80 0A           STX XX0A80
+00054  084E  F0 07              BEQ XX0857
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0002
+
+LINE# LOC   CODE        LINE
+
+
+00055  0850  20 CF FF    XX0850 JSR CHRIN
+00056  0853  C9 20              CMP #$20      ;' '
+00057  0855  F0 15              BEQ XX086C
+00058  0857  C9 0D       XX0857 CMP #$0D
+00059  0859  F0 11              BEQ XX086C
+00060  085B  AE 80 0A           LDX XX0A80
+00061  085E  E0 0F              CPX #$0F
+00062  0860  F0 AD              BEQ XX080F
+00063  0862  9D 6E 0A           STA XX0A6E,X
+00064  0865  E8                 INX 
+00065  0866  8E 80 0A           STX XX0A80
+00066  0869  4C 50 08           JMP XX0850
+00067  086C              ;********************************
+00068  086C  A9 2C       XX086C LDA #$2C      ;','
+00069  086E  9D 6E 0A           STA XX0A6E,X
+00070  0871  E8                 INX 
+00071  0872  A9 53              LDA #$53      ;'S'
+00072  0874  9D 6E 0A           STA XX0A6E,X
+00073  0877  E8                 INX 
+00074  0878  8E 80 0A           STX XX0A80
+00075  087B  A9 0D              LDA #$0D
+00076  087D  20 D2 FF           JSR CHROUT
+00077  0880  A9 07              LDA #$07
+00078  0882  A2 08              LDX #$08
+00079  0884  A0 0F              LDY #$0F
+00080  0886  20 BA FF           JSR SETLFS
+00081  0889  A9 49              LDA #$49      ;'I'
+00082  088B  8D 65 0A           STA XX0A65
+00083  088E  A9 30              LDA #$30      ;'0'
+00084  0890  8D 66 0A           STA XX0A66
+00085  0893  A2 65              LDX #$65
+00086  0895  A0 0A              LDY #$0A
+00087  0897  A9 02              LDA #$02
+00088  0899  20 BD FF           JSR SETNAM
+00089  089C  20 C0 FF           JSR OPEN
+00090  089F  A5 90              LDA $90
+00091  08A1  F0 04              BEQ XX08A7
+00092  08A3  C9 40              CMP #$40      ;'@'
+00093  08A5  D0 23              BNE XX08CA
+00094  08A7  A9 07       XX08A7 LDA #$07
+00095  08A9  20 C3 FF           JSR CLOSE
+00096  08AC  A9 07              LDA #$07
+00097  08AE  A2 08              LDX #$08
+00098  08B0  A0 07              LDY #$07
+00099  08B2  20 BA FF           JSR SETLFS
+00100  08B5  A2 6E              LDX #$6E
+00101  08B7  A0 0A              LDY #$0A
+00102  08B9  AD 80 0A           LDA XX0A80
+00103  08BC  20 BD FF           JSR SETNAM
+00104  08BF  20 C0 FF           JSR OPEN
+00105  08C2  A5 90              LDA $90
+00106  08C4  F0 07              BEQ XX08CD
+00107  08C6  C9 40              CMP #$40      ;'@'
+00108  08C8  F0 03              BEQ XX08CD
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0003
+
+LINE# LOC   CODE        LINE
+
+
+00109  08CA  4C 76 09    XX08CA JMP XX0976
+00110  08CD              ;********************************
+00111  08CD  A2 07       XX08CD LDX #$07
+00112  08CF  20 C6 FF           JSR CHKIN
+00113  08D2  20 E1 FF    XX08D2 JSR STOP
+00114  08D5  D0 03              BNE XX08DA
+00115  08D7  4C 7F 09           JMP XX097F
+00116  08DA              ;********************************
+00117  08DA  20 CE 09    XX08DA JSR XX09CE
+00118  08DD  C9 3B              CMP #$3B      ;';'
+00119  08DF  D0 F1              BNE XX08D2
+00120  08E1  A9 00              LDA #$00
+00121  08E3  8D 65 0A           STA XX0A65
+00122  08E6  8D 66 0A           STA XX0A66
+00123  08E9  8D 6C 0A           STA XX0A6C
+00124  08EC  20 10 0A           JSR XX0A10
+00125  08EF  D0 16              BNE XX0907
+00126  08F1  20 10 0A           JSR XX0A10
+00127  08F4  CD 6B 0A           CMP XX0A6B
+00128  08F7  F0 03              BEQ XX08FC
+00129  08F9  4C 82 09           JMP XX0982
+00130  08FC              ;********************************
+00131  08FC  20 10 0A    XX08FC JSR XX0A10
+00132  08FF  CD 6A 0A           CMP XX0A6A
+00133  0902  D0 7E              BNE XX0982
+00134  0904  4C 87 09           JMP XX0987
+00135  0907              ;********************************
+00136  0907  8D 69 0A    XX0907 STA XX0A69
+00137  090A  EE 6A 0A           INC XX0A6A
+00138  090D  D0 03              BNE XX0912
+00139  090F  EE 6B 0A           INC XX0A6B
+00140  0912  20 E4 09    XX0912 JSR XX09E4
+00141  0915  20 10 0A           JSR XX0A10
+00142  0918  48                 PHA 
+00143  0919  18                 CLC 
+00144  091A  6D 68 0A           ADC XX0A68
+00145  091D  85 FC              STA $FC
+00146  091F  68                 PLA 
+00147  0920  20 E4 09           JSR XX09E4
+00148  0923  20 10 0A           JSR XX0A10
+00149  0926  48                 PHA 
+00150  0927  18                 CLC 
+00151  0928  6D 67 0A           ADC XX0A67
+00152  092B  85 FB              STA $FB
+00153  092D  90 02              BCC XX0931
+00154  092F  E6 FC              INC $FC
+00155  0931  68          XX0931 PLA 
+00156  0932  20 E4 09           JSR XX09E4
+00157  0935  AD 6A 0A           LDA XX0A6A
+00158  0938  C9 01              CMP #$01
+00159  093A  D0 08              BNE XX0944
+00160  093C  A9 0D              LDA #$0D
+00161  093E  20 D2 FF           JSR CHROUT
+00162  0941  20 3A 0A           JSR XX0A3A
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0004
+
+LINE# LOC   CODE        LINE
+
+
+00163  0944  20 10 0A    XX0944 JSR XX0A10
+00164  0947  AC 6C 0A           LDY XX0A6C
+00165  094A  8C 80 0A           STY XX0A80
+00166  094D  EE 6C 0A           INC XX0A6C
+00167  0950  91 FB              STA ($FB),Y
+00168  0952  D1 FB              CMP ($FB),Y
+00169  0954  D0 23              BNE XX0979
+00170  0956  20 E4 09           JSR XX09E4
+00171  0959  CE 69 0A           DEC XX0A69
+00172  095C  D0 E6              BNE XX0944
+00173  095E  20 10 0A           JSR XX0A10
+00174  0961  CD 66 0A           CMP XX0A66
+00175  0964  D0 16              BNE XX097C
+00176  0966  20 10 0A           JSR XX0A10
+00177  0969  CD 65 0A           CMP XX0A65
+00178  096C  D0 0E              BNE XX097C
+00179  096E  A9 2E              LDA #$2E      ;'.'
+00180  0970  20 D2 FF           JSR CHROUT
+00181  0973  4C D2 08           JMP XX08D2
+00182  0976              ;********************************
+00183  0976  A2 40       XX0976 LDX #$40      ;'@'
+00184  0978  2C A2 24           BIT $24A2
+00185  097B  2C A2 31           BIT $31A2
+00186  097E  2C A2 11           BIT $11A2
+00187  0981  2C A2 00           BIT $00A2
+00188  0984  20 AD 09           JSR XX09AD
+00189  0987  20 CC FF    XX0987 JSR CLRCHN
+00190  098A  A9 07              LDA #$07
+00191  098C  20 C3 FF           JSR CLOSE
+00192  098F  18                 CLC 
+00193  0990  AD 80 0A           LDA XX0A80
+00194  0993  65 FB              ADC $FB
+00195  0995  85 FB              STA $FB
+00196  0997  A5 FC              LDA $FC
+00197  0999  69 00              ADC #$00
+00198  099B  85 FC              STA $FC
+00199  099D  A9 0D              LDA #$0D
+00200  099F  20 D2 FF           JSR CHROUT
+00201  09A2  20 3A 0A           JSR XX0A3A
+00202  09A5  A2 18              LDX #$18
+00203  09A7  20 AD 09           JSR XX09AD
+00204  09AA  4C 91 E3           JMP $E391
+00205  09AD              ;********************************
+00206  09AD  8E 6C 0A    XX09AD STX XX0A6C
+00207  09B0  AE 6C 0A    XX09B0 LDX XX0A6C
+00208  09B3  BD 81 0A           LDA XX0A81,X
+00209  09B6  08                 PHP 
+00210  09B7  29 7F              AND #$7F
+00211  09B9  20 D2 FF           JSR CHROUT
+00212  09BC  EE 6C 0A           INC XX0A6C
+00213  09BF  28                 PLP 
+00214  09C0  10 EE              BPL XX09B0
+00215  09C2  60                 RTS 
+00216  09C3              ;********************************
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0005
+
+LINE# LOC   CODE        LINE
+
+
+00217  09C3  C9 3A       XX09C3 CMP #$3A      ;':'
+00218  09C5  08                 PHP 
+00219  09C6  29 0F              AND #$0F
+00220  09C8  28                 PLP 
+00221  09C9  90 02              BCC XX09CD
+00222  09CB  69 08              ADC #$08
+00223  09CD  60          XX09CD RTS 
+00224  09CE              ;********************************
+00225  09CE  20 CF FF    XX09CE JSR CHRIN
+00226  09D1  48                 PHA 
+00227  09D2  A5 90              LDA $90
+00228  09D4  F0 04              BEQ XX09DA
+00229  09D6  C9 40              CMP #$40      ;'@'
+00230  09D8  D0 02              BNE XX09DC
+00231  09DA  68          XX09DA PLA 
+00232  09DB  60                 RTS 
+00233  09DC              ;********************************
+00234  09DC  68          XX09DC PLA 
+00235  09DD  68                 PLA 
+00236  09DE  68                 PLA 
+00237  09DF  68                 PLA 
+00238  09E0  68                 PLA 
+00239  09E1  4C 76 09           JMP XX0976
+00240  09E4              ;********************************
+00241  09E4  18          XX09E4 CLC 
+00242  09E5  6D 65 0A           ADC XX0A65
+00243  09E8  8D 65 0A           STA XX0A65
+00244  09EB  90 03              BCC XX09F0
+00245  09ED  EE 66 0A           INC XX0A66
+00246  09F0  60          XX09F0 RTS 
+00247  09F1              ;********************************
+00248  09F1  20 CE 09    XX09F1 JSR XX09CE
+00249  09F4  C9 0D              CMP #$0D
+00250  09F6  F0 14              BEQ XX0A0C
+00251  09F8  C9 20              CMP #$20      ;' '
+00252  09FA  F0 12              BEQ XX0A0E
+00253  09FC  20 18 0A           JSR XX0A18
+00254  09FF  90 0D              BCC XX0A0E
+00255  0A01  8D 68 0A           STA XX0A68
+00256  0A04  20 10 0A           JSR XX0A10
+00257  0A07  90 05              BCC XX0A0E
+00258  0A09  8D 67 0A           STA XX0A67
+00259  0A0C  38          XX0A0C SEC 
+00260  0A0D  60                 RTS 
+00261  0A0E              ;********************************
+00262  0A0E  18          XX0A0E CLC 
+00263  0A0F  60                 RTS 
+00264  0A10              ;********************************
+00265  0A10  A9 00       XX0A10 LDA #$00
+00266  0A12  8D 6D 0A           STA XX0A6D
+00267  0A15  20 CE 09           JSR XX09CE
+00268  0A18  C9 20       XX0A18 CMP #$20      ;' '
+00269  0A1A  D0 09              BNE XX0A25
+00270  0A1C  20 CE 09           JSR XX09CE
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0006
+
+LINE# LOC   CODE        LINE
+
+
+00271  0A1F  C9 20              CMP #$20      ;' '
+00272  0A21  D0 0F              BNE XX0A32
+00273  0A23  18                 CLC 
+00274  0A24  60                 RTS 
+00275  0A25              ;********************************
+00276  0A25  20 C3 09    XX0A25 JSR XX09C3
+00277  0A28  0A                 ASL A
+00278  0A29  0A                 ASL A
+00279  0A2A  0A                 ASL A
+00280  0A2B  0A                 ASL A
+00281  0A2C  8D 6D 0A           STA XX0A6D
+00282  0A2F  20 CE 09           JSR XX09CE
+00283  0A32  20 C3 09    XX0A32 JSR XX09C3
+00284  0A35  0D 6D 0A           ORA XX0A6D
+00285  0A38  38                 SEC 
+00286  0A39  60                 RTS 
+00287  0A3A              ;********************************
+00288  0A3A  A5 FB       XX0A3A LDA $FB
+00289  0A3C  48                 PHA 
+00290  0A3D  A5 FC              LDA $FC
+00291  0A3F  20 43 0A           JSR XX0A43
+00292  0A42  68                 PLA 
+00293  0A43  48          XX0A43 PHA 
+00294  0A44  4A                 LSR A
+00295  0A45  4A                 LSR A
+00296  0A46  4A                 LSR A
+00297  0A47  4A                 LSR A
+00298  0A48  20 5B 0A           JSR XX0A5B
+00299  0A4B  AA                 TAX 
+00300  0A4C  68                 PLA 
+00301  0A4D  29 0F              AND #$0F
+00302  0A4F  20 5B 0A           JSR XX0A5B
+00303  0A52  48                 PHA 
+00304  0A53  8A                 TXA 
+00305  0A54  20 D2 FF           JSR CHROUT
+00306  0A57  68                 PLA 
+00307  0A58  4C D2 FF           JMP CHROUT
+00308  0A5B              ;********************************
+00309  0A5B  18          XX0A5B CLC 
+00310  0A5C  69 F6              ADC #$F6
+00311  0A5E  90 02              BCC XX0A62
+00312  0A60  69 06              ADC #$06
+00313  0A62  69 3A       XX0A62 ADC #$3A      ;':'
+00314  0A64  60                 RTS 
+00315  0A65              ;********************************
+00316  0A65  AA          XX0A65 TAX 
+00317  0A66  AA          XX0A66 TAX 
+00318  0A67  AA          XX0A67 TAX 
+00319  0A68  AA          XX0A68 TAX 
+00320  0A69  AA          XX0A69 TAX 
+00321  0A6A  AA          XX0A6A TAX 
+00322  0A6B  AA          XX0A6B TAX 
+00323  0A6C  AA          XX0A6C TAX 
+00324  0A6D  AA          XX0A6D TAX 
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0007
+
+LINE# LOC   CODE        LINE
+
+
+00325  0A6E  AA          XX0A6E TAX 
+00326  0A6F  AA                 TAX 
+00327  0A70  AA                 TAX 
+00328  0A71  AA                 TAX 
+00329  0A72  AA                 TAX 
+00330  0A73  AA                 TAX 
+00331  0A74  AA                 TAX 
+00332  0A75  AA                 TAX 
+00333  0A76  AA                 TAX 
+00334  0A77  AA                 TAX 
+00335  0A78  AA                 TAX 
+00336  0A79  AA                 TAX 
+00337  0A7A  AA                 TAX 
+00338  0A7B  AA                 TAX 
+00339  0A7C  AA                 TAX 
+00340  0A7D  AA                 TAX 
+00341  0A7E  AA                 TAX 
+00342  0A7F  AA                 TAX 
+00343  0A80  AA          XX0A80 TAX 
+00344  0A81  0D 42 41    XX0A81 ORA $4142
+00345  0A84  44                   .BYTE $44  ;'D' ;??? ILLEGAL OPCODE
+00346  0A85  20 52 45           JSR $4552
+00347  0A88  43                   .BYTE $43  ;'C' ;??? ILLEGAL OPCODE
+00348  0A89  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00349  0A8A  52                   .BYTE $52  ;'R' ;??? ILLEGAL OPCODE
+00350  0A8B  44                   .BYTE $44  ;'D' ;??? ILLEGAL OPCODE
+00351  0A8C  20 43 4F           JSR $4F43
+00352  0A8F  55 4E              EOR $4E,X
+00353  0A91  D4                   .BYTE $D4 ;??? ILLEGAL OPCODE
+00354  0A92  0D 42 52           ORA $5242
+00355  0A95  45 41              EOR $41
+00356  0A97  4B                   .BYTE $4B  ;'K' ;??? ILLEGAL OPCODE
+00357  0A98  8D 0D 45           STA $450D
+00358  0A9B  4E 44 20           LSR $2044
+00359  0A9E  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00360  0A9F  46 20              LSR $20
+00361  0AA1  4C 4F 41           JMP $414F
+00362  0AA4              ;********************************
+00363  0AA4  C4 0D              CPY $0D
+00364  0AA6  4E 4F 4E           LSR $4E4F
+00365  0AA9  2D 52 41           AND $4152
+00366  0AAC  4D 20 4C           EOR $4C20
+00367  0AAF  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00368  0AB0  41 C4              EOR ($C4,X)
+00369  0AB2  0D 43 48           ORA $4843
+00370  0AB5  45 43              EOR $43
+00371  0AB7  4B                   .BYTE $4B  ;'K' ;??? ILLEGAL OPCODE
+00372  0AB8  53                   .BYTE $53  ;'S' ;??? ILLEGAL OPCODE
+00373  0AB9  55 4D              EOR $4D,X
+00374  0ABB  20 45 52           JSR $5245
+00375  0ABE  52                   .BYTE $52  ;'R' ;??? ILLEGAL OPCODE
+00376  0ABF  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00377  0AC0  D2                   .BYTE $D2 ;??? ILLEGAL OPCODE
+00378  0AC1  0D 46 49           ORA $4946
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0008
+
+LINE# LOC   CODE        LINE
+
+
+00379  0AC4  4C 45 20           JMP $2045
+00380  0AC7              ;********************************
+00381  0AC7  45 52              EOR $52
+00382  0AC9  52                   .BYTE $52  ;'R' ;??? ILLEGAL OPCODE
+00383  0ACA  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00384  0ACB  D2                   .BYTE $D2 ;??? ILLEGAL OPCODE
+00385  0ACC  0D 0D 0D           ORA $0D0D
+00386  0ACF  4C 4F 4C           JMP $4C4F
+00387  0AD2              ;********************************
+00388  0AD2  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00389  0AD3  41 44              EOR ($44,X)
+00390  0AD5  2E 43 36           ROL $3643
+00391  0AD8  34                   .BYTE $34  ;'4' ;??? ILLEGAL OPCODE
+00392  0AD9  20 56 30           JSR $3056
+00393  0ADC  37                   .BYTE $37  ;'7' ;??? ILLEGAL OPCODE
+00394  0ADD  32                   .BYTE $32  ;'2' ;??? ILLEGAL OPCODE
+00395  0ADE  38                 SEC 
+00396  0ADF  38                 SEC 
+00397  0AE0  32                   .BYTE $32  ;'2' ;??? ILLEGAL OPCODE
+00398  0AE1  0D 28 43           ORA $4328
+00399  0AE4  29 20              AND #$20      ;' '
+00400  0AE6  31 39              AND ($39),Y
+00401  0AE8  38                 SEC 
+00402  0AE9  32                   .BYTE $32  ;'2' ;??? ILLEGAL OPCODE
+00403  0AEA  20 42 59           JSR $5942
+00404  0AED  20 43 4F           JSR $4F43
+00405  0AF0  4D 4D 4F           EOR $4F4D
+00406  0AF3  44                   .BYTE $44  ;'D' ;??? ILLEGAL OPCODE
+00407  0AF4  4F                   .BYTE $4F  ;'O' ;??? ILLEGAL OPCODE
+00408  0AF5  52                   .BYTE $52  ;'R' ;??? ILLEGAL OPCODE
+00409  0AF6  45 20              EOR $20
+00410  0AF8  42                   .BYTE $42  ;'B' ;??? ILLEGAL OPCODE
+00411  0AF9  55 53              EOR $53,X
+00412  0AFB  49 4E              EOR #$4E      ;'N'
+00413  0AFD  45 53              EOR $53
+00414  0AFF  53                   .BYTE $53  ;'S' ;??? ILLEGAL OPCODE
+00415  0B00  20 4D 41           JSR $414D
+00416  0B03  43                   .BYTE $43  ;'C' ;??? ILLEGAL OPCODE
+00417  0B04  48                 PHA 
+00418  0B05  49 4E              EOR #$4E      ;'N'
+00419  0B07  45 53              EOR $53
+00420  0B09  0D 0D 0D           ORA $0D0D
+00421  0B0C  48                 PHA 
+00422  0B0D  45 58              EOR $58
+00423  0B0F  20 4F 46           JSR $464F
+00424  0B12  46 53              LSR $53
+00425  0B14  45 54              EOR $54
+00426  0B16  20 28 43           JSR $4328
+00427  0B19  52                   .BYTE $52  ;'R' ;??? ILLEGAL OPCODE
+00428  0B1A  20 49 46           JSR $4649
+00429  0B1D  20 4E 4F           JSR $4F4E
+00430  0B20  4E 45 29           LSR $2945
+00431  0B23  20 3F A0           JSR $A03F
+00432  0B26  0D 4F 42           ORA $424F
+
+
+
+
+
+
+
+DISASSEMBLER64.......PAGE 0009
+
+LINE# LOC   CODE        LINE
+
+
+00433  0B29  4A                 LSR A
+00434  0B2A  45 43              EOR $43
+00435  0B2C  54                   .BYTE $54  ;'T' ;??? ILLEGAL OPCODE
+00436  0B2D  20 46 49           JSR $4946
+00437  0B30  4C 45 20           JMP $2045
+00438  0B33              ;********************************
+00439  0B33  4E 41 4D           LSR $4D41
+00440  0B36  45 20              EOR $20
+00441  0B38  3F                   .BYTE $3F  ;'?' ;??? ILLEGAL OPCODE
+00442  0B39  A0 AA              LDY #$AA
+00443  0B3B  AA                 TAX 
+00444  0B3C  AA                 TAX 
+00445  0B3D  AA                 TAX 
+00446  0B3E  AA                 TAX 
+00447  0B3F  AA                 TAX 
+00448  0B40              ;********************************
+00449  0B40              .END
+
+
+ERRORS = 00035
+
+          000D             0020             0039             0041
+          0043             0044             004D             004E
+          0052             0053             0054             0058
+          0090             00A2             00C4             00FB
+          00FC             080F             0836             0840
+          0849             0850             0857             086C
+          08A7             08CA             08CD             08D2
+          08DA             08FC             0907             0912
+          0931             0944             0976             0979
+          097C             097F             0982             0987
+          09AD             09B0             09C3             09CD
+          09CE             09DA             09DC             09E4
+          09F0             09F1             0A08             0A0C
+          0A0E             0A10             0A18             0A25
+          0A32             0A3A             0A43             0A5B
+          0A62             0A65             0A66             0A67
+          0A68             0A69             0A6A             0A6B
+          0A6C             0A6D             0A6E             0A80
+          0A81             0D0D             11A2             2044
+          2045             24A2             2945             3056
+          31A2             3643             4142             414D
+          414F             4152             424F             4328
+          450D             4552             4649             464F
+          4843             4946             4C20             4C4F
+          4D41             4E4F             4F43             4F4D
+          4F4E             5242             5245             5942
+          A03F             E391    .SETLFS   FFBA    .SETNAM   FFBD
+ .OPEN     FFC0    .CLOSE    FFC3    .CHKIN    FFC6    .CLRCHN   FFCC
+ .CHRIN    FFCF    .CHROUT   FFD2    .STOP     FFE1
+
+
+END OF DISASSEMBLY
+
+
+
+
+
+
+

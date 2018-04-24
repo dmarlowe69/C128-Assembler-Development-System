@@ -1,0 +1,684 @@
+
+; 64tass Turbo Assembler Macro V1.53.1515 listing file
+; 64tass -L bobj2prg.lst -o bobj2prg.prg bobj2prg.asm
+; Mon Mar 19 15:04:50 2018
+
+;Offset	;Hex		;Monitor	;Source
+
+;******  Processing input file: bobj2prg.asm
+
+=1					BSTUB = 1
+>1c01	0d 1c				 .WORD BASIC    ;LINE LINK POINTER
+>1c03	0a 00				 .BYTE $0A,$00  ;LINE NUMBER (10)
+>1c05	9e				 .BYTE 158      ;SYS COMMAND TOKEN
+>1c06	28 37 31 38 33 29		 .TEXT '(7183)' ;CALL TO $1C0F
+>1c0c	00				 .BYTE $00      ;END OF LINE
+.1c0d					BASIC
+>1c0d	00 00				 .BYTE $00,$00  ;END OF BASIC
+
+;******  Processing file: obj2prg.asm
+
+=$90					STATUS=$90         ;STATUS BYTE
+=$b8					LA    =$B8         ;CURRENT LOGICAL DEVICE NUMBER
+=$b9					SA    =$B9         ;CURRENT SECONDARY ADDRESS
+=$ba					FA    =$BA         ;CURRENT DEVICE NUMBER
+=$fb					ZEROPG=$FB         ;ZERO PAGE POINTER
+=$fd					ZEROUR=$FD         ;ZERO PAGE POINTER
+=$ff96					TALKSA=$FF96       ;SERIAL TALK SA
+=$ffa5					IECIN =$FFA5       ;SERIAL IN
+=$ffab					UNTALK=$FFAB       ;SERIAL UNTALK
+=$ffe1					STOP  =$FFE1       ;CHECK FOR STOP
+=$ffb4					TALK  =$FFB4       ;SERIAL TALK
+=$ffba					SETLFS=$FFBA       ;SET LOGICAL FILE
+=$ffbd					SETNAM=$FFBD       ;SET FILENAME
+=$ffc0					OPEN  =$FFC0       ;OPEN FILE
+=$ffc3					CLOSE =$FFC3       ;CLOSE LOGICAL FILE
+=$ffc6					CHKIN =$FFC6       ;OPEN INPUT CHANNEL
+=$ffc9					CHKOUT=$FFC9       ;OPEN OUTPUT CHANNEL
+=$ffcc					CLRCHN=$FFCC       ;RESET I/O CHANNELS
+=$ffcf					CHRIN =$FFCF       ;GET KEYBOARD INPUT
+=$ffd2					CHROUT=$FFD2       ;OUTPUT CHARACTER
+=$ffb7					READST=$FFB7       ;READ I/O STATUS
+=$ff90					SETMSG=$FF90       ;ERROR MESSAGE SETUP
+=$ff68					SETBNK=$FF68       ;JSETBNK
+=$ff7d					PRIMM =$FF7D       ;PRINT IMMEDIATE
+=$ffe7					CLALL =$FFE7       ;CLOSE ALL CHANNELS
+=$1c0f					OBJPRG =*
+.1c0f	a9 40		lda #$40	       LDA #$40     ;ALLOW KERNAL MESSAGES
+.1c11	20 90 ff	jsr $ff90	       JSR SETMSG
+.1c14	a9 00		lda #$00	       LDA #$00  ;BANK 15
+.1c16	8d 00 ff	sta $ff00	       STA $FF00 ;
+.1c19	a9 fc		lda #$fc	       LDA #$FC  ;SLOW SPEED
+.1c1b	8d 30 d0	sta $d030	       STA $D030 ;
+.1c1e	20 e7 ff	jsr $ffe7	       JSR CLALL ;CLOSE ALL FILES
+.1c21	a9 00		lda #$00	       LDA #$00      ;ZERO BYTE
+.1c23	8d a0 1f	sta $1fa0	       STA RECORD    ;RECORD COUNT
+.1c26	8d a1 1f	sta $1fa1	       STA RECORD+1  ;
+.1c29	8d a2 1f	sta $1fa2	       STA STADD     ;START ADDRESS
+.1c2c	85 90		sta $90		       STA STATUS    ;I/O STATUS
+.1c2e	8d a5 1f	sta $1fa5	       STA SCROPT    ;SCREEN OUTPUT OPTION
+.1c31	8d 9d 1f	sta $1f9d	       STA DEVIN     ;INPUT DEVICE
+=$1c34					INITOK =*
+.1c34	a9 05		lda #$05	       LDA #$05
+.1c36	a2 00		ldx #$00	       LDX #$00
+.1c38	a0 ff		ldy #$ff	       LDY #$FF
+.1c3a	20 ba ff	jsr $ffba	       JSR SETLFS
+.1c3d	a9 00		lda #$00	       LDA #$00    ;GET LENGTH
+.1c3f	a2 00		ldx #$00	       LDX #$00    ;LOW FILENAME
+.1c41	a0 00		ldy #$00	       LDY #$00    ;HIGH FILENAME
+.1c43	20 bd ff	jsr $ffbd	       JSR SETNAM
+.1c46	a9 00		lda #$00	       LDA #$00     ;LOAD INTO BANK 1
+.1c48	a2 00		ldx #$00	       LDX #$00     ;PROGRAM IN BANK 0
+.1c4a	20 68 ff	jsr $ff68	       JSR SETBNK
+.1c4d	20 c0 ff	jsr $ffc0	       JSR OPEN
+.1c50	a9 03		lda #$03	       LDA #$03    ;FILE #3
+.1c52	a2 03		ldx #$03	       LDX #$03    ;DEVICE #3
+.1c54	a0 ff		ldy #$ff	       LDY #$FF    ;SECOND ADDRESS
+.1c56	20 ba ff	jsr $ffba	       JSR SETLFS  ;SET FILE
+.1c59	a9 00		lda #$00	       LDA #$00    ;GET LENGTH
+.1c5b	a2 00		ldx #$00	       LDX #$00    ;LOW FILENAME
+.1c5d	a0 00		ldy #$00	       LDY #$00    ;HIGH FILENAME
+.1c5f	20 bd ff	jsr $ffbd	       JSR SETNAM  ;SET FILENAME
+.1c62	a9 00		lda #$00	       LDA #$00     ;LOAD INTO BANK 1
+.1c64	a2 00		ldx #$00	       LDX #$00     ;PROGRAM IN BANK 0
+.1c66	20 68 ff	jsr $ff68	       JSR SETBNK
+.1c69	20 c0 ff	jsr $ffc0	       JSR OPEN    ;OPEN FILE
+.1c6c	a2 03		ldx #$03	       LDX #$03    ;FILE #3
+.1c6e	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.1c71	a9 93		lda #$93	       LDA #$93 ;SCREEN CLEAR
+.1c73	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1c76	a2 05		ldx #$05	       LDX #$05
+.1c78	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1c7b	20 c6 ff	jsr $ffc6	       JSR CHKIN
+.1c7e	a2 2f		ldx #$2f	       LDX #MSG7-MSG1 ;OFFSET FOR TITLE
+.1c80	20 1d 21	jsr $211d	       JSR PRINT      ;PRINT TITLE
+.1c83	a2 6e		ldx #$6e	       LDX #MSG8-MSG1 ;OFFSET FOR MSG
+.1c85	20 1d 21	jsr $211d	       JSR PRINT      ;PRG NAME:
+.1c88	20 60 21	jsr $2160	       JSR INSTNO  ;READ STRING INTO OBUF
+.1c8b	a2 00		ldx #$00	PFILE0 LDX #$00
+.1c8d	bd c2 20	lda $20c2,x	PFILE1 LDA OBJM,X
+.1c90	99 9c 20	sta $209c,y	       STA OUF,Y
+.1c93	c8		iny		       INY
+.1c94	e8		inx		       INX
+.1c95	e0 04		cpx #$04	       CPX #$04
+.1c97	d0 f4		bne $1c8d	       BNE PFILE1
+.1c99	8c ca 20	sty $20ca	       STY SAVO ; LENGTH OF FILE NAME
+.1c9c	20 7e 21	jsr $217e	       JSR PRTCR  ;PRINT IT
+.1c9f	a2 82		ldx #$82	       LDX #MSG9-MSG1 ;OFFSET FOR MSG
+.1ca1	20 1d 21	jsr $211d	       JSR PRINT      ;PRG NAME:
+.1ca4	20 6f 21	jsr $216f	       JSR INSTNP  ;READ STRING INTO PBUF
+.1ca7	a2 00		ldx #$00	PFILE2 LDX #$00
+.1ca9	bd c6 20	lda $20c6,x	PFILE3 LDA PROGM,X
+.1cac	99 ae 20	sta $20ae,y	       STA PUF,Y
+.1caf	c8		iny		       INY
+.1cb0	e8		inx		       INX
+.1cb1	e0 04		cpx #$04	       CPX #$04
+.1cb3	d0 f4		bne $1ca9	       BNE PFILE3
+.1cb5	8c cb 20	sty $20cb	       STY SAVP    ; LENGTH OF FILE NAME
+.1cb8	a9 d4		lda #$d4	       LDA #<MSS1  ;LOW BYTE MESSAGE
+.1cba	a0 20		ldy #$20	       LDY #>MSS1  ;HIGH BYTE MESSAGE
+.1cbc	20 33 21	jsr $2133	       JSR STRPNT  ;OUTPUT MESSAGE
+.1cbf	20 51 21	jsr $2151	       JSR CRNO    ;GET KEY PRESS
+.1cc2	b0 07		bcs $1ccb	       BCS SOP1    ;C=0 YES C=1 NO
+.1cc4	a9 00		lda #$00	       LDA #$00    ;ZERO
+.1cc6	8d a5 1f	sta $1fa5	       STA SCROPT  ;PRINT TO SCREEN
+.1cc9	f0 05		beq $1cd0	       BEQ INITD  ;SLIP NEXT
+.1ccb	a9 01		lda #$01	SOP1   LDA #$01    ;ONE
+.1ccd	8d a5 1f	sta $1fa5	       STA SCROPT  ;NO PRINT TO SCREEN
+=$1cd0					INITD  =*
+.1cd0	a9 0f		lda #$0f	       LDA #$0F    ;FILE #15
+.1cd2	a2 08		ldx #$08	       LDX #$08    ;DEVICE #8
+.1cd4	a0 0f		ldy #$0f	       LDY #$0F    ;SECONDARY ADDRESS #15 (CMD)
+.1cd6	20 ba ff	jsr $ffba	       JSR SETLFS  ;SET FILE PARAMETERS
+.1cd9	a9 02		lda #$02	       LDA #$02    ;LENGTH OF FILENAME
+.1cdb	a0 20		ldy #$20	       LDY #>INIT  ;HIGH ADDRESS OF FILENAME
+.1cdd	a2 c0		ldx #$c0	       LDX #<INIT  ;LOW ADDRESS OF FILENAME
+.1cdf	20 bd ff	jsr $ffbd	       JSR SETNAM  ;SET FILE NAME
+.1ce2	a9 00		lda #$00	       LDA #$00     ;LOAD INTO BANK 1
+.1ce4	a2 00		ldx #$00	       LDX #$00     ;PROGRAM IN BANK 0
+.1ce6	20 68 ff	jsr $ff68	       JSR SETBNK
+.1ce9	20 c0 ff	jsr $ffc0	       JSR OPEN    ;OPEN FILE
+.1cec	20 69 1f	jsr $1f69	       JSR DISERR  ;LOW LEVEL CHECK DISK ERROR
+.1cef	90 06		bcc $1cf7	       BCC OPENOF  ;IF C=0 NO ERRORS
+.1cf1	4c f2 1e	jmp $1ef2	       JMP QUITER  ;DISK ERROR, QUIT
+.1cf4	20 cc ff	jsr $ffcc	       JSR CLRCHN
+=$1cf7					OPENOF =*
+.1cf7	a9 07		lda #$07	       LDA #$07    ;FILE #7
+.1cf9	a2 08		ldx #$08	       LDX #$08    ;DEVICE #8
+.1cfb	a0 07		ldy #$07	       LDY #$07    ;SECOND ADDRESS
+.1cfd	20 ba ff	jsr $ffba	       JSR SETLFS  ;SET FILE
+.1d00	ad ca 20	lda $20ca	       LDA SAVO    ;GET LENGTH
+.1d03	a2 9c		ldx #$9c	       LDX #<OUF   ;LOW FILENAME
+.1d05	a0 20		ldy #$20	       LDY #>OUF   ;HIGH FILENAME
+.1d07	20 bd ff	jsr $ffbd	       JSR SETNAM  ;SET FILENAME
+.1d0a	a9 00		lda #$00	       LDA #$00     ;LOAD INTO BANK 1
+.1d0c	a2 00		ldx #$00	       LDX #$00     ;PROGRAM IN BANK 0
+.1d0e	20 68 ff	jsr $ff68	       JSR SETBNK
+.1d11	20 c0 ff	jsr $ffc0	       JSR OPEN    ;OPEN FILE
+.1d14	20 69 1f	jsr $1f69	       JSR DISERR
+.1d17	90 03		bcc $1d1c	       BCC OBJOK
+.1d19	4c f2 1e	jmp $1ef2	       JMP QUITER
+=$1d1c					OBJOK =*
+.1d1c	a9 08		lda #$08	       LDA #$08    ;FILE #8
+.1d1e	a2 08		ldx #$08	       LDX #$08    ;DEVICE #8
+.1d20	a0 08		ldy #$08	       LDY #$08    ;SECOND ADDRESS
+.1d22	20 ba ff	jsr $ffba	       JSR SETLFS  ;SET FILE
+.1d25	ad cb 20	lda $20cb	       LDA SAVP    ;GET LENGTH
+.1d28	a2 ae		ldx #$ae	       LDX #<PUF   ;LOW FILENAME
+.1d2a	a0 20		ldy #$20	       LDY #>PUF   ;HIGH FILENAME
+.1d2c	20 bd ff	jsr $ffbd	       JSR SETNAM  ;SET FILENAME
+.1d2f	a9 00		lda #$00	       LDA #$00     ;LOAD INTO BANK 1
+.1d31	a2 00		ldx #$00	       LDX #$00     ;PROGRAM IN BANK 0
+.1d33	20 68 ff	jsr $ff68	       JSR SETBNK
+.1d36	20 c0 ff	jsr $ffc0	       JSR OPEN    ;OPEN FILE
+.1d39	20 69 1f	jsr $1f69	       JSR DISERR
+.1d3c	90 03		bcc $1d41	       BCC PRGOK
+.1d3e	4c f2 1e	jmp $1ef2	       JMP QUITER
+=$1d41					PRGOK =*
+.1d41	20 cc ff	jsr $ffcc	       JSR CLRCHN
+.1d44	a2 07		ldx #$07	       LDX #$07    ;FILE #7
+.1d46	8e 9d 1f	stx $1f9d	       STX DEVIN   ;
+.1d49	20 c6 ff	jsr $ffc6	       JSR CHKIN   ;INPUT FILE
+.1d4c	20 7e 21	jsr $217e	       JSR PRTCR  ;OUTPUT TO SCREEN
+=$1d4f					CKSTOP =*
+.1d4f	20 e1 ff	jsr $ffe1	       JSR STOP    ;CHECK STOP
+.1d52	d0 03		bne $1d57	       BNE OK2     ;IF NOT GO ON.
+.1d54	4c ef 1e	jmp $1eef	       JMP BREAK   ;BREAK ERROR
+=$1d57					OK2 =*
+.1d57	20 83 21	jsr $2183	       JSR INPUT   ;INPUT CHAR
+.1d5a	c9 3b		cmp #$3b	       CMP #';'    ;START OF RECORD
+.1d5c	f0 03		beq $1d61	       BEQ ROK
+.1d5e	4c ec 1e	jmp $1eec	       JMP RERROR  ;RECORD ERROR
+.1d61	20 d2 ff	jsr $ffd2	ROK    JSR CHROUT  ;OUTPUT TO SCREEN
+.1d64	20 83 21	jsr $2183	       JSR INPUT   ;INPUT CHAR
+.1d67	8d 98 20	sta $2098	       STA DIGIT1  ;SAVE CHAR
+.1d6a	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1d6d	8d 99 20	sta $2099	       STA DIGIT2  ;SAVE CHAR
+.1d70	20 3d 1f	jsr $1f3d	       JSR GETBYT  ;GET BYTE
+.1d73	8d 9e 1f	sta $1f9e	       STA NUMBYT  ;NUMBER BYTES IN RECORD
+.1d76	c9 00		cmp #$00	       CMP #$00        ;IF BYTE COUNT ZERO
+.1d78	d0 08		bne $1d82	       BNE GOON        ;NO THEN CONTINUE
+.1d7a	a2 be		ldx #$be	       LDX #MSG16-MSG1 ;OFFSET COUNT
+.1d7c	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.1d7f	4c f2 1e	jmp $1ef2	       JMP QUITER      ;DONE
+=$1d82					GOON =*
+.1d82	ad a5 1f	lda $1fa5	       LDA SCROPT
+.1d85	d0 14		bne $1d9b	       BNE SKIP1
+.1d87	a2 95		ldx #$95	       LDX #MSG12-MSG1 ;OFFSET COUNT
+.1d89	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.1d8c	ad 98 20	lda $2098	       LDA DIGIT1      ;GET CHAR
+.1d8f	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1d92	ad 99 20	lda $2099	       LDA DIGIT2      ;GET CHAR
+.1d95	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1d98	20 7e 21	jsr $217e	       JSR PRTCR       ;PRINT CR
+=$1d9b					SKIP1 =*
+.1d9b	20 83 21	jsr $2183	       JSR INPUT   ;INPUT CHAR
+.1d9e	8d 98 20	sta $2098	       STA DIGIT1  ;SAVE CHAR
+.1da1	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1da4	8d 99 20	sta $2099	       STA DIGIT2  ;SAVE CHAR
+.1da7	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1daa	8d 9a 20	sta $209a	       STA DIGIT3  ;SAVE CHAR
+.1dad	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1db0	8d 9b 20	sta $209b	       STA DIGIT4  ;SAVE CHAR
+.1db3	20 0a 1f	jsr $1f0a	       JSR GETADD  ;GET BYTE
+.1db6	ad a2 1f	lda $1fa2	       LDA STADD   ;CHECK START ADDRESS FLAG
+.1db9	d0 2d		bne $1de8	       BNE SKPADD  ;IF NOT ZERO WE HAVE ALREADY WRITTEN ADDRESS
+.1dbb	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;
+.1dbe	a2 08		ldx #$08	       LDX #$08    ;FILE #8
+.1dc0	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.1dc3	ad cf 20	lda $20cf	       LDA ADDLO   ;LOW BYTE ADDRESS
+.1dc6	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;WRITE IT TO FILE
+.1dc9	ad ce 20	lda $20ce	       LDA ADDHI   ;HIGH BYTE ADDRESS
+.1dcc	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;WRITE IT TO FILE
+.1dcf	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;
+.1dd2	a2 03		ldx #$03	       LDX #$03    ;FILE #3
+.1dd4	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.1dd7	ad cf 20	lda $20cf	       LDA ADDLO
+.1dda	8d cc 20	sta $20cc	       STA RECLO  ;RECORD ADDRESS LOW BYTE
+.1ddd	ad ce 20	lda $20ce	       LDA ADDHI
+.1de0	8d cd 20	sta $20cd	       STA RECHI  ;RECORD ADDRESS HIGH BYTE
+.1de3	a9 01		lda #$01	       LDA #$01    ;LOAD NONZERO VALUE
+.1de5	8d a2 1f	sta $1fa2	       STA STADD   ;SET START ADDRESS FLAG
+=$1de8					SKPADD =*
+.1de8	ad cc 20	lda $20cc	       LDA RECLO
+.1deb	cd cf 20	cmp $20cf	       CMP ADDLO
+.1dee	d0 08		bne $1df8	       BNE NONC
+.1df0	ad cd 20	lda $20cd	       LDA RECHI
+.1df3	cd ce 20	cmp $20ce	       CMP ADDHI
+.1df6	f0 08		beq $1e00	       BEQ YESC
+=$1df8					NONC = *
+.1df8	a2 cb		ldx #$cb	       LDX #MSG17-MSG1 ;OFFSET ADDRESS
+.1dfa	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.1dfd	20 99 21	jsr $2199	       JSR PADIT
+=$1e00					YESC =*
+.1e00	ad a5 1f	lda $1fa5	       LDA SCROPT
+.1e03	d0 25		bne $1e2a	       BNE SKIP2
+.1e05	a2 8c		ldx #$8c	       LDX #MSG11-MSG1 ;OFFSET ADDRESS
+.1e07	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.1e0a	ad 98 20	lda $2098	       LDA DIGIT1      ;GET CHAR
+.1e0d	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1e10	ad 99 20	lda $2099	       LDA DIGIT2      ;GET CHAR
+.1e13	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1e16	ad 9a 20	lda $209a	       LDA DIGIT3      ;GET CHAR
+.1e19	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1e1c	ad 9b 20	lda $209b	       LDA DIGIT4      ;GET CHAR
+.1e1f	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;PRINT IT
+.1e22	20 7e 21	jsr $217e	       JSR PRTCR       ;PRINT CR
+.1e25	a2 9c		ldx #$9c	       LDX #MSG13-MSG1 ;OFFSET BYTE DATA
+.1e27	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+=$1e2a					SKIP2 =*
+.1e2a	a2 00		ldx #$00	       LDX #$00
+.1e2c	8e 9f 1f	stx $1f9f	       STX CURBYT
+=$1e2f					NEXTBY =*
+.1e2f	a2 00		ldx #$00	       LDX #$00
+.1e31	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1e34	20 83 21	jsr $2183	       JSR INPUT   ;INPUT CHAR
+.1e37	8d 98 20	sta $2098	       STA DIGIT1  ;SAVE CHAR
+.1e3a	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1e3d	8d 99 20	sta $2099	       STA DIGIT2  ;SAVE CHAR
+.1e40	20 3d 1f	jsr $1f3d	       JSR GETBYT  ;GET BYTE
+.1e43	ae 9f 1f	ldx $1f9f	       LDX CURBYT  ;GET CURRENT BYTE COUNTER
+.1e46	8d d0 20	sta $20d0	       STA CURDAT  ;SAVE CURRENT BYTE
+.1e49	9d 5c 22	sta $225c,x	       STA DATA,X  ;SAVE BYTE IN RECORD BUFFER
+.1e4c	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;RESET I/O
+.1e4f	a2 08		ldx #$08	       LDX #$08    ;FILE #8
+.1e51	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.1e54	ad d0 20	lda $20d0	       LDA CURDAT  ;DATA BYTE
+.1e57	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;WRITE IT TO FILE
+.1e5a	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;RESET I/O
+.1e5d	a2 03		ldx #$03	       LDX #$03    ;FILE #3
+.1e5f	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.1e62	ad a5 1f	lda $1fa5	       LDA SCROPT
+.1e65	d0 11		bne $1e78	       BNE SKIP3
+.1e67	ad 98 20	lda $2098	       LDA DIGIT1
+.1e6a	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1e6d	ad 99 20	lda $2099	       LDA DIGIT2
+.1e70	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1e73	a9 20		lda #$20	       LDA #' '
+.1e75	20 d2 ff	jsr $ffd2	       JSR CHROUT
+=$1e78					SKIP3 =*
+.1e78	ae 9f 1f	ldx $1f9f	       LDX CURBYT
+.1e7b	e8		inx		       INX
+.1e7c	8e 9f 1f	stx $1f9f	       STX CURBYT
+.1e7f	ec 9e 1f	cpx $1f9e	       CPX NUMBYT
+.1e82	d0 ab		bne $1e2f	       BNE NEXTBY
+.1e84	a2 00		ldx #$00	       LDX #$00
+.1e86	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1e89	20 83 21	jsr $2183	       JSR INPUT   ;INPUT CHAR
+.1e8c	8d 98 20	sta $2098	       STA DIGIT1  ;SAVE CHAR
+.1e8f	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1e92	8d 99 20	sta $2099	       STA DIGIT2  ;SAVE CHAR
+.1e95	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1e98	8d 9a 20	sta $209a	       STA DIGIT3  ;SAVE CHAR
+.1e9b	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.1e9e	8d 9b 20	sta $209b	       STA DIGIT4  ;SAVE CHAR
+.1ea1	20 0a 1f	jsr $1f0a	       JSR GETADD  ;CONVERT TO WORD
+.1ea4	ad a5 1f	lda $1fa5	       LDA SCROPT
+.1ea7	d0 1d		bne $1ec6	       BNE SKIP4
+.1ea9	a2 a7		ldx #$a7	       LDX #MSG14-MSG1 ;OFFSET ADDRESS
+.1eab	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.1eae	ad 98 20	lda $2098	       LDA DIGIT1
+.1eb1	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1eb4	ad 99 20	lda $2099	       LDA DIGIT2
+.1eb7	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1eba	ad 9a 20	lda $209a	       LDA DIGIT3
+.1ebd	20 d2 ff	jsr $ffd2	       JSR CHROUT
+.1ec0	ad 9b 20	lda $209b	       LDA DIGIT4
+.1ec3	20 d2 ff	jsr $ffd2	       JSR CHROUT
+=$1ec6					SKIP4 =*
+.1ec6	20 cf ff	jsr $ffcf	       JSR CHRIN ;INPUT   ;INPUT CHAR
+.1ec9	ad a5 1f	lda $1fa5	       LDA SCROPT
+.1ecc	d0 06		bne $1ed4	       BNE SKIP5
+.1ece	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;PRINT IT
+.1ed1	20 7e 21	jsr $217e	       JSR PRTCR   ;PRINT CR
+=$1ed4					SKIP5 =*
+.1ed4	18		clc		       CLC
+.1ed5	ad 9e 1f	lda $1f9e	       LDA NUMBYT
+.1ed8	6d cc 20	adc $20cc	       ADC RECLO
+.1edb	8d cc 20	sta $20cc	       STA RECLO
+.1ede	a9 00		lda #$00	       LDA #$00
+.1ee0	6d cd 20	adc $20cd	       ADC RECHI
+.1ee3	8d cd 20	sta $20cd	       STA RECHI
+.1ee6	4c 4f 1d	jmp $1d4f	       JMP CKSTOP  ;NEXT RECORD
+=$1ee9					PADERR =*
+.1ee9	a2 09		ldx #$09	       LDX #MSG4-MSG1 ;OFFSET ADDRESS
+>1eeb	2c				       .BYTE $2C      ;BIT TRICK TO SKIP
+=$1eec					RERROR =*
+.1eec	a2 09		ldx #$09	       LDX #MSG4-MSG1 ;OFFSET FOR MSG
+>1eee	2c				       .BYTE $2C      ;BIT TRICK TO SKIP
+=$1eef					BREAK =*
+.1eef	a2 02		ldx #$02	       LDX #MSG2-MSG1 ;BREAK ERROR
+>1ef1	2c				       .BYTE $2C      ;BIT TRICK TO SKIP
+=$1ef2					QUITER =*
+.1ef2	a2 b1		ldx #$b1	       LDX #MSG15-MSG1 ;END OF FILE
+.1ef4	20 1d 21	jsr $211d	       JSR PRINT   ;PRINT HEADING
+.1ef7	a9 03		lda #$03	       LDA #$03    ;FILE #7
+.1ef9	20 c3 ff	jsr $ffc3	       JSR CLOSE   ;CLOSE
+.1efc	a9 07		lda #$07	       LDA #$07    ;FILE #7
+.1efe	20 c3 ff	jsr $ffc3	       JSR CLOSE   ;CLOSE
+.1f01	a9 08		lda #$08	       LDA #$08    ;FILE #7
+.1f03	20 c3 ff	jsr $ffc3	       JSR CLOSE   ;CLOSE
+.1f06	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;RESET I/O
+.1f09	60		rts		       RTS         ;BACK TO BASIC
+=$1f0a					GETADD =*
+.1f0a	ad 98 20	lda $2098	       LDA DIGIT1
+.1f0d	20 54 1f	jsr $1f54	       JSR BYTASC  ;GET HIGH NIBBLE
+.1f10	0a		asl a		       ASL A       ;LEFT JUSTIFY
+.1f11	0a		asl a		       ASL A       ; ASCII CHAR
+.1f12	0a		asl a		       ASL A       ;  IN HIGH
+.1f13	0a		asl a		       ASL A       ;   NIBBLE
+.1f14	8d a4 1f	sta $1fa4	       STA TEMP    ;STORE
+.1f17	ad 99 20	lda $2099	       LDA DIGIT2  ;INPUT CHAR
+.1f1a	20 54 1f	jsr $1f54	       JSR BYTASC  ;CREATE LOW NIB
+.1f1d	0d a4 1f	ora $1fa4	       ORA TEMP         ;PUT IN PLACE
+.1f20	8d ce 20	sta $20ce	       STA ADDHI        ;HIGH NIBBLE
+.1f23	ad 9a 20	lda $209a	       LDA DIGIT3
+.1f26	20 54 1f	jsr $1f54	       JSR BYTASC  ;GET HIGH NIBBLE
+.1f29	0a		asl a		       ASL A       ;LEFT JUSTIFY
+.1f2a	0a		asl a		       ASL A       ; ASCII CHAR
+.1f2b	0a		asl a		       ASL A       ;  IN HIGH
+.1f2c	0a		asl a		       ASL A       ;   NIBBLE
+.1f2d	8d a4 1f	sta $1fa4	       STA TEMP    ;STORE
+.1f30	ad 9b 20	lda $209b	       LDA DIGIT4  ;INPUT CHAR
+.1f33	20 54 1f	jsr $1f54	       JSR BYTASC  ;CREATE LOW NIB
+.1f36	0d a4 1f	ora $1fa4	       ORA TEMP    ;PUT IN PLACE
+.1f39	8d cf 20	sta $20cf	       STA ADDLO   ;LO NIBBLE
+.1f3c	60		rts		       RTS         ;RETURN
+=$1f3d					GETBYT =*
+.1f3d	ad 98 20	lda $2098	       LDA DIGIT1
+.1f40	20 54 1f	jsr $1f54	       JSR BYTASC  ;GET HIGH NIBBLE
+.1f43	0a		asl a		       ASL A       ;LEFT JUSTIFY
+.1f44	0a		asl a		       ASL A       ; ASCII CHAR
+.1f45	0a		asl a		       ASL A       ;  IN HIGH
+.1f46	0a		asl a		       ASL A       ;   NIBBLE
+.1f47	8d a4 1f	sta $1fa4	       STA TEMP    ;STORE
+.1f4a	ad 99 20	lda $2099	       LDA DIGIT2  ;INPUT CHAR
+.1f4d	20 54 1f	jsr $1f54	       JSR BYTASC  ;CREATE LOW NIB
+.1f50	0d a4 1f	ora $1fa4	       ORA TEMP    ;PUT IN PLACE
+.1f53	60		rts		       RTS         ;RETURN
+.1f54	c9 3a		cmp #$3a	BYTASC CMP #$3A    ;IS CHAR >9
+.1f56	08		php		       PHP         ;PUSH P
+.1f57	29 0f		and #$0f	       AND #$0F    ;MASK HIGH BYTE
+.1f59	28		plp		       PLP         ;PULL P
+.1f5a	90 02		bcc $1f5e	       BCC EXIT1   ;IF <=9 OK
+.1f5c	69 08		adc #$08	       ADC #$08    ;ADD OFFSET
+.1f5e	60		rts		EXIT1  RTS         ;RETURN
+.1f5f	18		clc		CHGASC CLC         ;CLEAR CARRY
+.1f60	69 f6		adc #$f6	       ADC #$F6    ;ADD OFFSET
+.1f62	90 02		bcc $1f66	       BCC NOSIX   ;IF C=0 OK
+.1f64	69 06		adc #$06	       ADC #$06    ;ADD OFFSSET
+.1f66	69 3a		adc #$3a	NOSIX  ADC #$3A    ;ADD OFFSET
+.1f68	60		rts		       RTS         ;RETURN
+=$1f69					DISERR = *
+.1f69	a2 0f		ldx #$0f	       LDX #$0F
+.1f6b	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1f6e	20 c6 ff	jsr $ffc6	       JSR CHKIN
+.1f71	20 cf ff	jsr $ffcf	       JSR CHRIN
+.1f74	c9 30		cmp #$30	       CMP #$30      ;'0'
+.1f76	d0 11		bne $1f89	       BNE DLOOC
+.1f78	20 cf ff	jsr $ffcf	DLOOE  JSR CHRIN   ;GET BYTE
+.1f7b	c9 0d		cmp #$0d	       CMP #$0D    ;IS IT CR?
+.1f7d	d0 f9		bne $1f78	       BNE DLOOE   ;GET NEXT BYTE
+.1f7f	a2 00		ldx #$00	       LDX #$00
+.1f81	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1f84	20 cc ff	jsr $ffcc	       JSR CLRCHN
+.1f87	18		clc		       CLC         ;NO ERROR FLAG
+.1f88	60		rts		       RTS         ;RETURN
+.1f89	20 cf ff	jsr $ffcf	DLOOC  JSR CHRIN   ;GET NEXT BYTE
+.1f8c	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;PRINT IT
+.1f8f	c9 0d		cmp #$0d	       CMP #$0D    ;IS IT CR
+.1f91	d0 f6		bne $1f89	       BNE DLOOC   ;GET NEXT BYTE
+.1f93	a2 00		ldx #$00	       LDX #$00
+.1f95	8e 9d 1f	stx $1f9d	       STX DEVIN
+.1f98	20 cc ff	jsr $ffcc	       JSR CLRCHN
+.1f9b	38		sec		       SEC         ;SET ERROR FLAG
+.1f9c	60		rts		       RTS         ;RETURN
+>1f9d	aa				DEVIN  .BYTE $AA ;XX082D INPUT DEVICE
+>1f9e	aa				NUMBYT .BYTE $AA   ;NUMBER BYTES
+>1f9f	aa				CURBYT .BYTE $AA   ;CURRENT BYTE IN RECORD
+>1fa0	aa aa				RECORD .WORD $AAAA ;RECORD NUMBER
+>1fa2	aa				STADD  .BYTE $AA   ;START ADDRESS
+>1fa3	aa				COUNT  .BYTE $AA   ;COUNTER
+>1fa4	aa				TEMP   .BYTE $AA   ;TEMPOARY
+>1fa5	aa				SCROPT .BYTE $AA   ;SCREEN OUPUT OPTION
+>1fa6	aa				COUNT1 .BYTE $AA    ;COUNTER
+>1fa7	0d 8d				MSG1 .BYTE $0D,$8D
+>1fa9	0d				MSG2 .BYTE $0D
+>1faa	42 52 45 41 4b 8d		.TEXT 'BREAK',$8D
+>1fb0	0d				MSG4 .BYTE $0D
+>1fb1	42 41 44 20 52 45 43 4f		.TEXT 'BAD RECORD',$8D
+>1fb9	52 44 8d
+>1fbc	0d				MSG5 .BYTE $0D
+>1fbd	43 48 45 43 4b 53 55 4d		.TEXT 'CHECKSUM ERRO',$D2
+>1fc5	20 45 52 52 4f d2
+>1fcb	0d				MSG6 .BYTE $0D
+>1fcc	46 49 4c 45 20 45 52 52		.TEXT 'FILE ERRO',$D2
+>1fd4	4f d2
+>1fd6	0d 0d 0d			MSG7 .BYTE $0D,$0D,$0D
+>1fd9	4f 42 4a 32 50 52 47 2e		.TEXT 'OBJ2PRG.C64 V072882'
+>1fe1	43 36 34 20 56 30 37 32 38 38 32
+>1fec	0d				.BYTE $0D
+>1fed	28 43 29 20 31 39 38 32		.TEXT '(C) 1982 BY COMMODORE BUSINESS '
+>1ff5	20 42 59 20 43 4f 4d 4d 4f 44 4f 52 45 20 42 55
+>2005	53 49 4e 45 53 53 20
+>200c	4d 41 43 48 49 4e 45 53		.TEXT 'MACHINES'
+>2014	a0				.BYTE $A0
+>2015	0d				MSG8 .BYTE $0D
+>2016	4f 42 4a 45 43 54 20 46		.TEXT 'OBJECT FILE NAME ?',$A0
+>201e	49 4c 45 20 4e 41 4d 45 20 3f a0
+>2029	0d				MSG9 .BYTE $0D
+>202a	50 52 47 20 4e 41 4d 45		.TEXT 'PRG NAME',$BA
+>2032	ba
+>2033	0d				MSG11 .BYTE $0D
+>2034	41 44 44 52 45 53 53 a0		.TEXT 'ADDRESS',$A0
+>203c	0d				MSG12 .BYTE $0D
+>203d	43 4f 55 4e 54 a0		.TEXT 'COUNT',$A0
+>2043	0d				MSG13 .BYTE $0D
+>2044	42 59 54 45 20 44 41 54		.TEXT 'BYTE DATA',$8D
+>204c	41 8d
+>204e	0d				MSG14 .BYTE $0D
+>204f	43 48 45 43 4b 53 55 4d		.TEXT 'CHECKSUM',$A0
+>2057	a0
+>2058	0d				MSG15 .BYTE $0D
+>2059	45 4e 44 20 4f 46 20 46		.TEXT 'END OF FILE',$8D
+>2061	49 4c 45 8d
+>2065	0d				MSG16 .BYTE $0D
+>2066	4c 41 53 54 20 52 45 43		.TEXT 'LAST RECORD',$8D
+>206e	4f 52 44 8d
+>2072	0d				MSG17 .BYTE $0D
+>2073	46 49 4c 45 20 49 53 20		.TEXT 'FILE IS NON CONTIGUOUS',$8D
+>207b	4e 4f 4e 20 43 4f 4e 54 49 47 55 4f 55 53 8d
+>208a	0d				MSG18 .BYTE $0D
+>208b	50 41 44 44 49 4e 47 20		.TEXT 'PADDING FILE',$8D
+>2093	46 49 4c 45 8d
+>2098	aa				DIGIT1 .BYTE $AA
+>2099	aa				DIGIT2 .BYTE $AA
+>209a	aa				DIGIT3 .BYTE $AA
+>209b	aa				DIGIT4 .BYTE $AA
+>209c	aa aa aa aa aa aa		OUF .BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20a2	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20a8	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20ae	aa aa aa aa aa aa		PUF .BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20b4	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20ba	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>20c0	49 30				INIT  .TEXT 'I0'
+>20c2	2c 53 2c 52			OBJM  .TEXT ',S,R'
+>20c6	2c 50 2c 57			PROGM .TEXT ',P,W'
+>20ca	aa				SAVO .BYTE $AA
+>20cb	aa				SAVP .BYTE $AA
+>20cc	aa				RECLO .BYTE $AA
+>20cd	aa				RECHI .BYTE $AA
+>20ce	aa				ADDHI  .BYTE $AA
+>20cf	aa				ADDLO  .BYTE $AA
+>20d0	aa				CURDAT .BYTE $AA
+>20d1	00 00				NUMPAD .WORD $0000
+>20d3	aa				PADBYT .BYTE $AA
+>20d4	0d				MSS1 .BYTE $0D
+>20d5	4f 55 54 50 55 54 20 54		 .TEXT 'OUTPUT TO SCREEN (Y OR N/CR)? '
+>20dd	4f 20 53 43 52 45 45 4e 20 28 59 20 4f 52 20 4e
+>20ed	2f 43 52 29 3f 20
+>20f3	00				 .BYTE 0
+>20f4	0d				MSE1 .BYTE $0D
+>20f5	50 41 44 44 49 4e 47 20		.TEXT 'PADDING NEGATIVE - PRG '
+>20fd	4e 45 47 41 54 49 56 45 20 2d 20 50 52 47 20
+>210c	46 49 4c 45 20 49 4e 43		.TEXT 'FILE INCOMPLETE',$0D
+>2114	4f 4d 50 4c 45 54 45 0d
+>211c	00				.BYTE 0
+.211d	8e a3 1f	stx $1fa3	PRINT  STX COUNT   ;PUT X IN COUNT
+.2120	ae a3 1f	ldx $1fa3	PLOOP  LDX COUNT   ;LOAD X FROM COUNT
+.2123	bd a7 1f	lda $1fa7,x	       LDA MSG1,X  ;LOAD CHAR
+.2126	08		php		       PHP         ;SAVE STATUS FLAG
+.2127	29 7f		and #$7f	       AND #$7F    ;MASK BIT 8
+.2129	20 d2 ff	jsr $ffd2	       JSR CHROUT  ;PRINT CHAR
+.212c	ee a3 1f	inc $1fa3	       INC COUNT   ;INC OFFSET
+.212f	28		plp		       PLP         ;GET STATUS FLAG
+.2130	10 ee		bpl $2120	       BPL PLOOP   ;IF BIT 8 ZERO
+.2132	60		rts		       RTS         ;RETURN
+.2133	85 fd		sta $fd		STRPNT STA ZEROUR     ;POINTER TO
+.2135	84 fe		sty $fe		       STY ZEROUR+1   ;MESSAGE
+.2137	a0 00		ldy #$00	       LDY #$00       ;OFFSET
+.2139	b1 fd		lda ($fd),y	SOUT   LDA (ZEROUR),Y ;GET CHAR
+.213b	f0 06		beq $2143	       BEQ SEXIT      ;IF ZERO EXIT
+.213d	20 d2 ff	jsr $ffd2	       JSR CHROUT     ;PRINT
+.2140	c8		iny		       INY            ;INC OFFSET
+.2141	d0 f6		bne $2139	       BNE SOUT       ;LOOP
+.2143	60		rts		SEXIT  RTS            ;RETURN
+.2144	20 cf ff	jsr $ffcf	CRYS JSR CHRIN
+.2147	c9 59		cmp #$59	 CMP #'Y'
+.2149	f0 11		beq $215c	 BEQ CRYS1
+.214b	c9 0d		cmp #$0d	 CMP #$0D
+.214d	f0 0d		beq $215c	 BEQ CRYS1
+.214f	d0 0d		bne $215e	 BNE CRNO1
+.2151	20 cf ff	jsr $ffcf	CRNO JSR CHRIN
+.2154	c9 4e		cmp #$4e	 CMP #'N'
+.2156	f0 06		beq $215e	 BEQ CRNO1
+.2158	c9 0d		cmp #$0d	 CMP #$0D
+.215a	f0 02		beq $215e	 BEQ CRNO1
+.215c	18		clc		CRYS1 CLC
+.215d	60		rts		 RTS
+.215e	38		sec		CRNO1 SEC
+.215f	60		rts		 RTS
+.2160	a0 00		ldy #$00	INSTNO LDY #$00
+.2162	20 cf ff	jsr $ffcf	INSTN1 JSR CHRIN
+.2165	99 9c 20	sta $209c,y	       STA OUF,Y
+.2168	c8		iny		       INY
+.2169	c9 0d		cmp #$0d	       CMP #$0D
+.216b	d0 f5		bne $2162	       BNE INSTN1
+.216d	88		dey		       DEY
+.216e	60		rts		       RTS
+.216f	a0 00		ldy #$00	INSTNP LDY #$00
+.2171	20 cf ff	jsr $ffcf	INSTN2 JSR CHRIN
+.2174	99 ae 20	sta $20ae,y	       STA PUF,Y
+.2177	c8		iny		       INY
+.2178	c9 0d		cmp #$0d	       CMP #$0D
+.217a	d0 f5		bne $2171	       BNE INSTN2
+.217c	88		dey		       DEY
+.217d	60		rts		       RTS
+.217e	a9 0d		lda #$0d	PRTCR  LDA #$0D    ;ASCII CR
+.2180	4c d2 ff	jmp $ffd2	       JMP CHROUT  ;PRINT IT
+=$2183					INPUT = *
+.2183	a2 07		ldx #$07	       LDX #$07
+.2185	ec 9d 1f	cpx $1f9d	       CPX DEVIN
+.2188	f0 0b		beq $2195	       BEQ INP
+.218a	8e 9d 1f	stx $1f9d	       STX DEVIN
+.218d	20 cc ff	jsr $ffcc	       JSR CLRCHN
+.2190	a2 07		ldx #$07	       LDX #$07
+.2192	20 c6 ff	jsr $ffc6	       JSR CHKIN
+=$2195					INP = *
+.2195	20 cf ff	jsr $ffcf	       JSR CHRIN   ;INPUT CHAR
+.2198	60		rts		       RTS
+=$2199					PADIT =*
+.2199	a2 e3		ldx #$e3	       LDX #MSG18-MSG1 ;OFFSET ADDRESS
+.219b	20 1d 21	jsr $211d	       JSR PRINT       ;PRINT HEADING
+.219e	38		sec		       SEC             ;SUBTRACK
+.219f	ad cf 20	lda $20cf	       LDA ADDLO       ;EXPECTED ADDRESS
+.21a2	ed cc 20	sbc $20cc	       SBC RECLO       ;FROM RECORD
+.21a5	8d d1 20	sta $20d1	       STA NUMPAD      ;ADDRESS TO
+.21a8	ad ce 20	lda $20ce	       LDA ADDHI       ;DETERMINE
+.21ab	ed cd 20	sbc $20cd	       SBC RECHI       ;NUMBER OF BYTES
+.21ae	8d d2 20	sta $20d2	       STA NUMPAD+1    ;TO PAD
+.21b1	b0 0c		bcs $21bf	       BCS DECPAD
+.21b3	a9 f4		lda #$f4	       LDA #<MSE1  ;LOW BYTE MESSAGE
+.21b5	a0 20		ldy #$20	       LDY #>MSE1  ;HIGH BYTE MESSAGE
+.21b7	20 33 21	jsr $2133	       JSR STRPNT  ;OUTPUT MESSAGE
+.21ba	68		pla		       PLA         ;PULL RETURN ADDRESS OFF STACK
+.21bb	68		pla		       PLA         ;SO RTS IN ERROR ROUTINE IS TO
+.21bc	4c e9 1e	jmp $1ee9	       JMP PADERR
+=$21bf					DECPAD =*
+.21bf	ad d1 20	lda $20d1	       LDA NUMPAD
+.21c2	d0 03		bne $21c7	       BNE DECPA1
+.21c4	ce d2 20	dec $20d2	       DEC NUMPAD+1
+.21c7	ce d1 20	dec $20d1	DECPA1 DEC NUMPAD
+.21ca	ac d2 20	ldy $20d2	       LDY NUMPAD+1    ;PRINT NUMBER
+.21cd	ad d1 20	lda $20d1	       LDA NUMPAD      ;OF PADDING
+.21d0	20 30 22	jsr $2230	       JSR PRBYTS      ;BYTES
+.21d3	20 7e 21	jsr $217e	       JSR PRTCR       ;NEW LINE
+.21d6	18		clc		       CLC             ;ADD NUMBER OF
+.21d7	ad cc 20	lda $20cc	       LDA RECLO       ;PADDED BYTES
+.21da	6d d1 20	adc $20d1	       ADC NUMPAD      ;TO PREVIOUS RECORD
+.21dd	8d cc 20	sta $20cc	       STA RECLO       ;ADDRESS FOR NEXT
+.21e0	ad cd 20	lda $20cd	       LDA RECLO+1     ;RECORD CHECK
+.21e3	6d d2 20	adc $20d2	       ADC NUMPAD+1    ;
+.21e6	8d cd 20	sta $20cd	       STA RECLO+1     ;
+.21e9	18		clc		       CLC             ;INCREMENT
+.21ea	ad cc 20	lda $20cc	       LDA RECLO       ;ADDRESS
+.21ed	69 01		adc #$01	       ADC #$01        ;BY ONE
+.21ef	8d cc 20	sta $20cc	       STA RECLO       ;TO ADVANCE PAST
+.21f2	ad cd 20	lda $20cd	       LDA RECLO+1     ;PADDING TO NEXT
+.21f5	69 00		adc #$00	       ADC #$00        ;ACTIVE ADDRESS
+.21f7	8d cd 20	sta $20cd	       STA RECLO+1     ;
+.21fa	ac cd 20	ldy $20cd	       LDY RECLO+1     ;PRINT WHAT
+.21fd	ad cc 20	lda $20cc	       LDA RECLO       ;NEXT RECORD
+.2200	20 30 22	jsr $2230	       JSR PRBYTS      ;ADDRESS SHOULD BE
+.2203	20 7e 21	jsr $217e	       JSR PRTCR       ;NEW LINE
+.2206	20 cc ff	jsr $ffcc	       JSR CLRCHN      ;RESET I/O
+.2209	a2 08		ldx #$08	       LDX #$08        ;FILE #8
+.220b	20 c9 ff	jsr $ffc9	       JSR CHKOUT      ;SET TO OUTPUT
+=$220e					PADIT1 =*
+.220e	ad d3 20	lda $20d3	       LDA PADBYT      ;PADDING BYTE
+.2211	20 d2 ff	jsr $ffd2	       JSR CHROUT      ;WRITE IT TO FILE
+.2214	ad d1 20	lda $20d1	       LDA NUMPAD
+.2217	d0 08		bne $2221	       BNE PADIT2
+.2219	ad d2 20	lda $20d2	       LDA NUMPAD+1
+.221c	f0 09		beq $2227	       BEQ PADIT3      ;KICKS IT OUT WHEN BOTH ARE 0
+.221e	ce d2 20	dec $20d2	       DEC NUMPAD+1
+.2221	ce d1 20	dec $20d1	PADIT2 DEC NUMPAD
+.2224	18		clc		       CLC
+.2225	90 e7		bcc $220e	       BCC PADIT1
+=$2227					PADIT3 =*
+.2227	20 cc ff	jsr $ffcc	       JSR CLRCHN  ;RESET I/O
+.222a	a2 03		ldx #$03	       LDX #$03    ;FILE #3
+.222c	20 c9 ff	jsr $ffc9	       JSR CHKOUT  ;SET TO OUTPUT
+.222f	60		rts		       RTS
+.2230	48		pha		PRBYTS PHA       ;PUT A ON STACK
+.2231	98		tya		       TYA       ;PUT HIH BYTE IN A
+.2232	20 36 22	jsr $2236	       JSR PRBYT ;PRINT MSB
+.2235	68		pla		       PLA       ;GET LSB
+.2236	48		pha		PRBYT  PHA        ;PUT BYTE ON STACK
+.2237	4a		lsr a		       LSR A      ;4 RIGHT SHIFTS
+.2238	4a		lsr a		       LSR A      ;TO MOVE HIGH
+.2239	4a		lsr a		       LSR A      ;NIBBLE TO LOW
+.223a	4a		lsr a		       LSR A      ;NIB WITH HIGH 0'S
+.223b	a8		tay		       TAY        ;USE AS POINTER
+.223c	b9 4c 22	lda $224c,y	       LDA HEXA,Y ;GET ASCII
+.223f	20 d2 ff	jsr $ffd2	       JSR CHROUT ;PRINT
+.2242	68		pla		       PLA        ;PULL BYTE OUT
+.2243	29 0f		and #$0f	       AND #$0F   ;MASK HIGH NIBBLE
+.2245	a8		tay		       TAY        ;USE AS POINTER
+.2246	b9 4c 22	lda $224c,y	       LDA HEXA,Y ;GET ASCII
+.2249	4c d2 ff	jmp $ffd2	       JMP CHROUT ;PRINT
+>224c	30 31 32 33 34 35 36 37		HEXA   .TEXT '0123456789ABCDEF'
+>2254	38 39 41 42 43 44 45 46
+>225c	aa aa aa aa aa aa		DATA .BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>2262	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>2268	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>226e	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>2274	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>227a	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>2280	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+>2286	aa aa aa aa aa aa		.BYTE $AA,$AA,$AA,$AA,$AA,$AA
+
+;******  Return to file: bobj2prg.asm
+
+
+;******  End of listing

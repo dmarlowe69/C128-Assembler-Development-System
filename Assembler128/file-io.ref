@@ -1,0 +1,54 @@
+;*********************************
+;         ASSEBMLER64
+;      ASSEMBLER.C64 V080282
+; CBM RESIDENT ASSEMBLER V080282
+;
+; (C) 1982 BY COMMODORE MACHINES
+;
+;  DOCUMENTED BY DENTON MARLOWE
+;
+;*********************************
+; LOGICAL FILE ASSIGNMENTS
+;*********************************
+;DEVICE      LOGICAL FILE NUMBER
+;SCREEN      #$01
+;SOURCE FILE #$02
+;LIB FILE    #$03
+;PRINTER     #$04
+;KEYBOARD    #$05
+;OBJECT FILE #$06
+;DISK STATUS #$07
+;XRLL0000    #$08
+;XRFF0000    #$09
+;*********************************
+; DEVICE RELATED VARIABLES
+;*********************************
+XX0839 DEVOUT ;CURRENT OUTPUT DIVICE
+XX0873 PRIPRT ;PRINTER OUTPUT
+XX0872 SCRPRT ;SCREEN OUTPUT FLAG
+;*********************************
+; GENERAL INFORMATION
+;*********************************
+;    0 is the keyboard.
+;    1 is the datassette, if any is connected.
+;    2 is the RS232 interface.
+;    3 is the text screen.
+;
+;Device numbers above 3 all refer to devices connected through the serial port.
+;They are all handled in exactly the same way from KERNAL's point of view, but by convention:
+;
+;    4 and 5 are printers.
+;    6 and 7 are plotters.
+;    8 thru 30 are disk drives.
+;*********************************
+; KERNAL FUNCTIONS
+;*********************************
+;SETLFS. Set file parameters.
+;Input: A = Logical number; X = Device number; Y = Secondary address.
+;Output: –
+;Used registers: –
+;Real address: $FE00.
+;*********************************
+;
+;*********************************
+.END

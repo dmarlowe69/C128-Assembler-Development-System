@@ -1,0 +1,14 @@
+
+C:\Users\Denton\Desktop\MADS Commdore 128\Crossref64 tass>64tass bcrossref.asm -L bcrossref.lst -o bcrossref.prg  
+64tass Turbo Assembler Macro V1.53.1515
+64TASS comes with ABSOLUTELY NO WARRANTY; This is free software, and you
+are welcome to redistribute it under certain conditions; See LICENSE!
+
+Assembling file:   bcrossref.asm
+Assembling file:   crossref.asm
+Error messages:    None
+Warning messages:  None
+Passes:            3
+Memory range:      $1c01-$21da   $05da
+
+C:\Users\Denton\Desktop\MADS Commdore 128\Crossref64 tass>rem pause 

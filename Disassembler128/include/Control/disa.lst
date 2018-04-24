@@ -1,0 +1,2963 @@
+
+; 64tass Turbo Assembler Macro V1.53.1515 listing file
+; 64tass -L disa.lst -o disa.prg disa.asm
+; Sat Feb 24 12:33:10 2018
+
+;Offset	;Hex		;Monitor	;Source
+
+;******  Processing input file: disa.asm
+
+=1					BSTUB = 1
+>1c01	0d 1c				 .WORD BASIC ;NEXT LINE POINTER
+>1c03	0a 00				 .BYTE $0A,$00 ;LINE NUMBER
+>1c05	9e				 .BYTE $9E ;SYS COMMAND
+>1c06	28 37 31 38 33 29		 .TEXT '(7183)' ;ASCII (7183)
+>1c0c	00				 .BYTE 0 ;END OF LINE
+>1c0d	00 00				BASIC .BYTE 0,0 ;END OF BASIC
+
+;******  Processing file: dis.asm
+
+=$d011					VICREG=$D011 ;SCREEN REGISTER
+=$ffd2					CHROUT=$FFD2 ;OUTPUT CHARACTER
+=$ffc6					CHKIN =$FFC6 ;OPEN INPUT FILE
+=$ffcf					CHRIN =$FFCF ;GET KEYBOARD INPUT
+=$ffe4					GETIN =$FFE4 ;GET KEYBOARD CHAR
+=$ffcc					CLRCHN=$FFCC ;RESET I/O CHANNELS
+=$ffe1					STOP =$FFE1 ;CHECK FOR STOP
+=$ffb7					READST=$FFB7 ;READ ST
+=$ffbd					SETNAM=$FFBD ;SET FILENAME
+=$ffba					SETLFS=$FFBA ;SET LOGICAL FILE
+=$ffc0					OPEN =$FFC0 ;OPEN FILE
+=$ffc9					CHKOUT=$FFC9 ;OPEN OUTPUT CHANNEL
+=$ffc3					CLOSE =$FFC3 ;CLOSE LOGICAL FILE
+=$4d37					WREADY=$4D37 ;BASIC RETURN
+=$fb					ZEROLG=$FB ;POINTER FOR LONG LDA/STA
+=$fb					ZEROUR=$FB ;ZEROPAGE POINTER
+=$39					MEMSIZ=$39 ;TOP OF FREE RAM+1
+=$cd6f					CURON  = $CD6F
+=$cd9f					CUROFF = $CD9F
+=$ff68					SETBNK = $FF68 ;JSETBNK
+=$ff4a					CLOSEA = $FF4A ;CLOSE-ALL
+=$ff74					INDFET = $FF74 ;LONG LDA
+=$ff77					INDSTA = $FF77 ;LONG STA
+=$ff7a					INDCMP = $FF7A ;LONG CMP
+=$ffe7					CLALL  = $FFE7
+=$ff7d					PRIMM  = $FF7D
+=$1c0f					STARTD = *
+=$ff90					SETMSG=$FF90
+.1c0f	a9 40		lda #$40	       LDA #$40     ;ALLOW KERNAL MESSAGES
+.1c11	20 90 ff	jsr $ff90	       JSR SETMSG
+.1c14	a9 00		lda #$00	       LDA #$00  ;BANK 15
+.1c16	8d 00 ff	sta $ff00	       STA $FF00 ;
+.1c19	a9 0e		lda #$0e	       LDA #$0E  ;NO BASIC ROM
+.1c1b	8d 00 ff	sta $ff00	       STA $FF00 ;
+.1c1e	a9 fc		lda #$fc	       LDA #$FC  ;SLOW SPEED
+.1c20	8d 30 d0	sta $d030	       STA $D030 ;
+.1c23	20 e7 ff	jsr $ffe7	       JSR CLALL
+=$8000					MEMEND = $8000
+.1c26	a9 00		lda #$00	       LDA #<MEMEND
+.1c28	85 39		sta $39		       STA MEMSIZ
+.1c2a	a9 80		lda #$80	       LDA #>MEMEND
+.1c2c	85 3a		sta $3a		       STA MEMSIZ+1
+.1c2e	4c 40 1e	jmp $1e40	       JMP DISASS
+>1c31	31				PASS  .BYTE '1'  ;PASS INDICATOR
+>1c32	31				IPASS .BYTE '1'  ;INTERNAL PASS
+>1c33	32				EPASS .BYTE '2'  ;EXTERNAL PASS
+>1c34	33				CPASS .BYTE '3'  ;PRINTING PASS
+>1c35	34				SPASS .BYTE '4'  ;SYMBOL PASS
+>1c36	aa				XOPT .BYTE $AA ;LABEL GENERATION
+>1c37	aa				ROPT .BYTE $AA ;REL ADDRESS OPT
+>1c38	aa				DEVICE .BYTE $AA ;OUTPUT DEVICE
+>1c39	aa				OUTPUT .BYTE $AA ;OUTPUT FLAG
+>1c3a	aa				WINDOW .BYTE $AA ;WINDOW FLAG
+>1c3b	aa				FOROPT .BYTE $AA ;FORMAT FLAG
+>1c3c	aa				COMOPT .BYTE $AA ;COMMENT FLAG
+>1c3d	aa aa				SA .WORD $AAAA ;START ADDRESS
+>1c3f	aa aa				EA .WORD $AAAA ;END ADDRESS
+>1c41	aa aa				SELECT .WORD $AAAA ;BYTE POINTER
+>1c43	aa aa				OFFSET .WORD $AAAA ;ADDRESS OFFSET
+>1c45	aa aa				SAGOL  .WORD $AAAA ;GOLBAL START
+>1c47	aa aa				EAGOL  .WORD $AAAA ;GOLBAL END
+>1c49	aa aa				SAOUT .WORD $AAAA ;START ADDRESS
+>1c4b	aa aa				EAOUT .WORD $AAAA ;END ADDRESS
+>1c4d	aa aa				TABINP .WORD $AAAA ;TABLE POINTER
+>1c4f	aa aa				TABINS .WORD $AAAA ;TABLE START
+>1c51	aa aa				TABINE .WORD $AAAA ;TABLE END
+>1c53	aa aa				SMALLS .WORD $AAAA ;TABLE START
+>1c55	aa aa				SMALLP .WORD $AAAA ;TABLE POINTER
+>1c57	aa				SYMBOL .BYTE $AA   ;SYMBOL OPTION
+>1c58	aa aa				SYMBOP .WORD $AAAA ;TABLE POINTER
+>1c5a	aa aa				SYMBOS .WORD $AAAA ;TABLE START
+>1c5c	aa aa				SYMBOE .WORD $AAAA ;TABLE END
+>1c5e	aa aa				UYMBOP .WORD $AAAA ;TABLE POINTER
+>1c60	aa aa				UYMBOS .WORD $AAAA ;TABLE START
+>1c62	aa aa				UYMBOE .WORD $AAAA ;TABLE END
+>1c64	aa aa				WORKED .WORD $AAAA ;TWO BYTE OP
+>1c66	aa aa				WORKER .WORD $AAAA ;TWO BYTE OP
+>1c68	aa aa				SAVEP .WORD $AAAA ;TWO BYTE OP
+>1c6a	aa aa				SAVES .WORD $AAAA ;TWO BYTE OP
+>1c6c	aa aa				SAVEE .WORD $AAAA ;TWO BYTE OP
+>1c6e	aa aa				ADRS .WORD $AAAA
+>1c70	aa				TEMP .BYTE $AA
+>1c71	aa				SAVA .BYTE $AA
+>1c72	aa				SAVX .BYTE $AA
+>1c73	aa				SAVY .BYTE $AA
+>1c74	aa aa				PAGECT .WORD $AAAA ;PAGE COUNT
+>1c76	aa				LISTCT .BYTE $AA ;LINE COUNT
+>1c77	aa aa				LINECT .WORD $AAAA ;LINE COUNT
+>1c79	aa aa				ERRCT  .WORD $AAAA ;ERROR COUNT
+=$1c7b					BUF = *
+>1c7b	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1c83	00 00
+>1c85	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1c8d	00 00
+>1c8f	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1c97	00 00
+>1c99	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1ca1	00 00
+>1ca3	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cab	00 00
+>1cad	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cb5	00 00
+>1cb7	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cbf	00 00
+>1cc1	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cc9	00 00
+>1ccb	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cd3	00 00
+>1cd5	00 00 00 00 00 00 00 00		 .BYTE 0,0,0,0,0,0,0,0,0,0
+>1cdd	00 00
+>1cdf	aa aa				LINEFL .WORD $AAAA
+>1ce1	aa				VERSON .BYTE $AA
+>1ce2	aa				NCHARS .BYTE $AA
+=$1ce3					NBUF = *
+>1ce3	30 3a				 .TEXT '0:'
+>1ce5	aa aa aa aa aa aa aa aa		 .BYTE $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
+>1ced	aa aa aa aa aa aa aa aa		 .BYTE $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
+>1cf5	aa aa aa aa			 .BYTE $AA,$AA,$AA,$AA
+=$1cf9					SYMBUF = *
+>1cf9	aa aa aa aa aa aa aa aa		 .BYTE $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
+>1d01	aa aa
+>1d03	aa aa				EAS .WORD $AAAA
+>1d05	aa				TEXTER .BYTE $AA
+>1d06	aa aa				CDATA .WORD $AAAA
+>1d08	aa aa				NDATA .WORD $AAAA
+>1d0a	aa aa				DATABP .WORD $AAAA ;DATA POINT
+>1d0c	aa aa				DATABS .WORD $AAAA ;DATA START
+>1d0e	aa aa				DATABE .WORD $AAAA ;DATA END
+>1d10	aa				TDATA .BYTE $AA
+>1e11	0d 50 41 53 53 00		MPASS  .TEXT $0D,'PASS',0
+>1e17	0d 12 20 50 41 55 53 45		PMSG   .TEXT $0D,$12,' PAUSE ',$92,$0D,0
+>1e1f	20 92 0d 00
+>1e23	45 52 52 4f 52 53 20 3d		MSGERR .TEXT 'ERRORS = ',0
+>1e2b	20 00
+>1e2d	45 4e 44 20 4f 46 20 44		MSGDIS .TEXT 'END OF DISASSEMBLY',0
+>1e35	49 53 41 53 53 45 4d 42 4c 59 00
+.1e40	a2 ff		ldx #$ff	DISASS LDX #$FF
+.1e42	9a		txs		 TXS
+.1e43	d8		cld		 CLD
+.1e44	20 91 1f	jsr $1f91	 JSR DOP ;GET OPTIONS
+.1e47	20 b8 2e	jsr $2eb8	 JSR INITIN ;INIT POINTERS
+.1e4a	a9 31		lda #$31	 LDA #'1'      ;PASS ONE
+.1e4c	8d 31 1c	sta $1c31	 STA PASS ;SET PASS INDICATOR
+.1e4f	20 a4 2d	jsr $2da4	DISA JSR INTSA ;SET SA
+.1e52	a9 00		lda #$00	 LDA #00 ;ZERO BYTE
+.1e54	8d 06 1d	sta $1d06	 STA CDATA ;SET TABLE NUMBER
+.1e57	a9 11		lda #$11	 LDA #<MPASS ;PASS MSG
+.1e59	a0 1e		ldy #$1e	 LDY #>MPASS ;
+.1e5b	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.1e5e	ad 31 1c	lda $1c31	 LDA PASS ;GET PASS
+.1e61	20 64 28	jsr $2864	 JSR PCHAR ;PRINT NUMBER
+.1e64	20 47 2d	jsr $2d47	 JSR CRLF ;CR
+.1e67	ad 31 1c	lda $1c31	 LDA PASS ;GET PASS
+.1e6a	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.1e6d	f0 0e		beq $1e7d	 BEQ DISB ;IF SO PRINT
+.1e6f	cd 33 1c	cmp $1c33	 CMP EPASS      ;IS IT EXTERNAL
+.1e72	d0 3a		bne $1eae	 BNE DLOOP ;IF NOT GO ON
+.1e74	20 d7 2e	jsr $2ed7	 JSR SAVINT ;SAVE INTERNAL
+.1e77	20 8b 37	jsr $378b	 JSR EQUINT ;SET EQUATES
+.1e7a	4c ae 1e	jmp $1eae	 JMP DLOOP ;GO ON
+.1e7d	a9 01		lda #$01	DISB LDA #$01 ;ONE BYTE
+.1e7f	8d 77 1c	sta $1c77	 STA LINECT ;SET LINE # TO 1
+.1e82	8d 74 1c	sta $1c74	 STA PAGECT ;SET PAGE TO 1
+.1e85	a9 00		lda #$00	 LDA #$00 ;ZERO BYTE
+.1e87	8d 78 1c	sta $1c78	 STA LINECT+1 ;SET LINE # TO 1
+.1e8a	8d 75 1c	sta $1c75	 STA PAGECT+1 ;SET PAGE TO 1
+.1e8d	8d 76 1c	sta $1c76	 STA LISTCT ;SET LIST TO 0
+.1e90	8d 79 1c	sta $1c79	 STA ERRCT ;SET ERROR TO 0
+.1e93	8d 7a 1c	sta $1c7a	 STA ERRCT+1 ;SET ERROR TO 0
+.1e96	8d df 1c	sta $1cdf	 STA LINEFL ;SET LINE TO 0
+.1e99	8d e0 1c	sta $1ce0	 STA LINEFL+1 ;SET LINE TO 0
+.1e9c	ad 39 1c	lda $1c39	 LDA OUTPUT ;GET OUTPUT
+.1e9f	8d 38 1c	sta $1c38	 STA DEVICE ;SET OUTPUT
+.1ea2	20 cd 28	jsr $28cd	 JSR HEADER ;PRINT HEADER
+.1ea5	20 cf 21	jsr $21cf	 JSR OFILED ;OPEN DISK FILE
+.1ea8	20 8f 2c	jsr $2c8f	 JSR ORGIN ;PRINT ORGIN LABEL
+.1eab	20 96 38	jsr $3896	 JSR EQUPRT ;PRINT EQUATE
+.1eae	20 d1 29	jsr $29d1	DLOOP JSR DSLINE ;DIS ONE LINE
+.1eb1	b0 2c		bcs $1edf	 BCS NEXTP ;IF EA STOP
+.1eb3	20 d8 26	jsr $26d8	 JSR LINECK ;LINE COUNT
+.1eb6	20 e1 ff	jsr $ffe1	 JSR STOP ;CHECK STOP
+.1eb9	f0 57		beq $1f12	 BEQ QUITS ;IF SO QUIT
+.1ebb	20 e4 ff	jsr $ffe4	 JSR GETIN ;GET KEY
+.1ebe	f0 ee		beq $1eae	 BEQ DLOOP ;IF NONE NEXT
+.1ec0	c9 20		cmp #$20	 CMP #' '          ;IS IT A SPACE
+.1ec2	d0 ea		bne $1eae	 BNE DLOOP ;IF NOT NEXT
+.1ec4	ad 38 1c	lda $1c38	 LDA DEVICE
+.1ec7	48		pha		 PHA
+.1ec8	a9 03		lda #$03	 LDA #$03
+.1eca	8d 38 1c	sta $1c38	 STA DEVICE
+.1ecd	a9 17		lda #$17	 LDA #<PMSG
+.1ecf	a0 1e		ldy #$1e	 LDY #>PMSG
+.1ed1	20 0e 28	jsr $280e	 JSR STRPNT
+.1ed4	68		pla		 PLA
+.1ed5	8d 38 1c	sta $1c38	 STA DEVICE
+.1ed8	20 e4 ff	jsr $ffe4	PAUSE JSR GETIN ;PAUSE FOR KEY
+.1edb	f0 fb		beq $1ed8	 BEQ PAUSE ;
+.1edd	d0 cf		bne $1eae	 BNE DLOOP ;NEXT LINE
+.1edf	ee 31 1c	inc $1c31	NEXTP INC PASS ;INC PASS
+.1ee2	ad 31 1c	lda $1c31	 LDA PASS ;GET PASS
+.1ee5	cd 34 1c	cmp $1c34	 CMP CPASS ;LAST PASS?
+.1ee8	90 1f		bcc $1f09	 BCC DISFUL ;IF LESS AGAIN
+.1eea	d0 20		bne $1f0c	 BNE DISC ;FINISH
+.1eec	ad 3a 1c	lda $1c3a	 LDA WINDOW ;WINDOW FLAG
+.1eef	f0 18		beq $1f09	 BEQ DISFUL ;FULL OUTPUT
+.1ef1	ad 49 1c	lda $1c49	 LDA SAOUT ;
+.1ef4	8d 3d 1c	sta $1c3d	 STA SA ;
+.1ef7	ad 4a 1c	lda $1c4a	 LDA SAOUT+1 ;
+.1efa	8d 3e 1c	sta $1c3e	 STA SA+1 ;
+.1efd	ad 4b 1c	lda $1c4b	 LDA EAOUT ;
+.1f00	8d 3f 1c	sta $1c3f	 STA EA ;
+.1f03	ad 4c 1c	lda $1c4c	 LDA EAOUT+1 ;
+.1f06	8d 40 1c	sta $1c40	 STA EA+1 ;
+.1f09	4c 4f 1e	jmp $1e4f	DISFUL JMP DISA ;LAST PASS
+.1f0c	20 77 2d	jsr $2d77	DISC JSR INCSL
+.1f0f	20 a5 2c	jsr $2ca5	 JSR EFILE ;END FILE MSG
+.1f12	ad 38 1c	lda $1c38	QUITS LDA DEVICE ;CHECK DEV
+.1f15	29 08		and #$08	 AND #$08 ;DISK FILE?
+.1f17	f0 10		beq $1f29	 BEQ QUTERR ;IF NOT BRANCH
+.1f19	a9 08		lda #$08	 LDA #$08 ;DISK
+.1f1b	20 c3 ff	jsr $ffc3	 JSR CLOSE ;CLOSE IT
+.1f1e	ad 39 1c	lda $1c39	 LDA OUTPUT ;GET OUTPUT
+.1f21	29 07		and #$07	 AND #07 ;MASK DISK
+.1f23	8d 39 1c	sta $1c39	 STA OUTPUT ;RESET OUTPUT
+.1f26	8d 38 1c	sta $1c38	 STA DEVICE ;RESET OUTPUT
+.1f29	ad 39 1c	lda $1c39	QUTERR LDA OUTPUT
+.1f2c	09 03		ora #$03	 ORA #$03
+.1f2e	8d 39 1c	sta $1c39	 STA OUTPUT
+.1f31	8d 38 1c	sta $1c38	 STA DEVICE
+.1f34	20 51 27	jsr $2751	 JSR NEWLIN
+.1f37	20 51 27	jsr $2751	 JSR NEWLIN
+.1f3a	a9 23		lda #$23	 LDA #<MSGERR
+.1f3c	a0 1e		ldy #$1e	 LDY #>MSGERR
+.1f3e	20 0e 28	jsr $280e	 JSR STRPNT
+.1f41	ae 79 1c	ldx $1c79	 LDX ERRCT
+.1f44	ad 7a 1c	lda $1c7a	 LDA ERRCT+1
+.1f47	20 2a 28	jsr $282a	 JSR PRTNUM
+.1f4a	ad 38 1c	lda $1c38	 LDA DEVICE ;CHECK DEV
+.1f4d	29 04		and #$04	 AND #$04 ;PRINTER?
+.1f4f	f0 13		beq $1f64	 BEQ DONED ;IF NOT DONE
+.1f51	a9 04		lda #$04	 LDA #$04 ;DEVICE 4
+.1f53	8d 39 1c	sta $1c39	 STA OUTPUT ;SET DEVICE
+.1f56	8d 38 1c	sta $1c38	 STA DEVICE ;SET DEVICE
+.1f59	20 89 30	jsr $3089	 JSR INTPRT ;PRINT INTABLE
+.1f5c	a9 07		lda #$07	 LDA #$07 ;DEVICE 3 AND 4
+.1f5e	8d 38 1c	sta $1c38	 STA DEVICE ;SET DEVICE
+.1f61	8d 39 1c	sta $1c39	 STA OUTPUT ;SET DEVICE
+.1f64	20 51 27	jsr $2751	DONED JSR NEWLIN ;NEWLINE
+.1f67	20 51 27	jsr $2751	 JSR NEWLIN ;NEWLINE
+.1f6a	a9 2d		lda #$2d	 LDA #<MSGDIS ;END MSG
+.1f6c	a0 1e		ldy #$1e	 LDY #>MSGDIS
+.1f6e	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.1f71	20 51 27	jsr $2751	 JSR NEWLIN ;NEW LINE
+.1f74	ad 38 1c	lda $1c38	 LDA DEVICE ;CHECK DEVICE
+.1f77	29 04		and #$04	 AND #$04 ;PRINTER
+.1f79	f0 08		beq $1f83	 BEQ DONE ;
+.1f7b	20 9b 28	jsr $289b	 JSR FINISH ;FINISH PAGE
+.1f7e	a9 04		lda #$04	 LDA #$04 ;PRINTER
+.1f80	20 c3 ff	jsr $ffc3	 JSR CLOSE ;CLOSE FILE
+.1f83	20 cc ff	jsr $ffcc	DONE JSR CLRCHN ;RESET I/O
+.1f86	20 5b 29	jsr $295b	 JSR SCRON      ;TURN SCREEN ON
+.1f89	a9 00		lda #$00	 LDA #$00  ;BANK 15
+.1f8b	8d 00 ff	sta $ff00	 STA $FF00 ;
+.1f8e	4c 37 4d	jmp $4d37	 JMP WREADY     ;RETURN
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: option.asm
+
+.1f91	a9 03		lda #$03	DOP LDA #$03 ;DEVICE #3 SCREEN
+.1f93	8d 38 1c	sta $1c38	 STA DEVICE ;CURRENT OUTPUT
+.1f96	a9 00		lda #$00	 LDA #$00 ;NO DEVICES
+.1f98	8d 39 1c	sta $1c39	 STA OUTPUT ;FINAL OUTPUT
+.1f9b	a9 07		lda #$07	 LDA #<MSG ;START UP MSG
+.1f9d	a0 24		ldy #$24	 LDY #>MSG
+.1f9f	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.1fa2	a9 54		lda #$54	 LDA #<MSF1
+.1fa4	a0 24		ldy #$24	 LDY #>MSF1
+.1fa6	20 0e 28	jsr $280e	 JSR STRPNT
+.1fa9	20 6f 27	jsr $276f	 JSR INSTNG
+.1fac	d0 03		bne $1fb1	 BNE PFILE0
+.1fae	4c fe 20	jmp $20fe	 JMP STARTS
+.1fb1	a2 00		ldx #$00	PFILE0 LDX #$00
+.1fb3	bd a5 24	lda $24a5,x	PFILE1 LDA PROGM,X
+.1fb6	99 7b 1c	sta $1c7b,y	 STA BUF,Y
+.1fb9	c8		iny		 INY
+.1fba	e8		inx		 INX
+.1fbb	e0 04		cpx #$04	 CPX #$04
+.1fbd	d0 f4		bne $1fb3	 BNE PFILE1
+.1fbf	8c 71 1c	sty $1c71	 STY SAVA
+.1fc2	20 dd 20	jsr $20dd	 JSR INITD
+.1fc5	20 ab 20	jsr $20ab	 JSR PRFILE
+.1fc8	a2 08		ldx #$08	 LDX #$08 ;FILE #8
+.1fca	20 c6 ff	jsr $ffc6	 JSR CHKIN ;INPUT FILE
+.1fcd	20 cf ff	jsr $ffcf	 JSR CHRIN ;GET LOW BYTE SA
+.1fd0	8d 3d 1c	sta $1c3d	 STA SA ;SET START
+.1fd3	20 cf ff	jsr $ffcf	 JSR CHRIN ;GET HIGH BYTE SA
+.1fd6	8d 3e 1c	sta $1c3e	 STA SA+1 ;SET START
+.1fd9	20 a4 2d	jsr $2da4	 JSR INTSA ;SET END
+.1fdc	a9 00		lda #$00	 LDA #$00 ;ZERO BYTE
+.1fde	8d 6e 1c	sta $1c6e	 STA ADRS ;BYTE COUNTER
+.1fe1	8d 6f 1c	sta $1c6f	 STA ADRS+1 ;BYTE COUNTER
+.1fe4	20 cf ff	jsr $ffcf	PROGRD JSR CHRIN ;INPUT BYTE
+.1fe7	20 b7 ff	jsr $ffb7	 JSR READST ;READ STATUS
+.1fea	d0 0d		bne $1ff9	 BNE PROGED ;IF NOT ZERO END
+.1fec	20 77 2d	jsr $2d77	 JSR INCSL ;INC END ADDRESS
+.1fef	ee 6e 1c	inc $1c6e	 INC ADRS ;INC BYTE COUNT
+.1ff2	d0 03		bne $1ff7	 BNE *+5 ;
+.1ff4	ee 6f 1c	inc $1c6f	 INC ADRS+1 ;
+.1ff7	d0 eb		bne $1fe4	 BNE PROGRD ;NEXT BYTE
+.1ff9	ad 41 1c	lda $1c41	PROGED LDA SELECT ;
+.1ffc	8d 3f 1c	sta $1c3f	 STA EA ;
+.1fff	ad 42 1c	lda $1c42	 LDA SELECT+1 ;
+.2002	8d 40 1c	sta $1c40	 STA EA+1 ;
+.2005	a9 08		lda #$08	 LDA #$08 ;FILE #8
+.2007	20 c3 ff	jsr $ffc3	 JSR CLOSE ;CLOSE IT
+.200a	20 cc ff	jsr $ffcc	 JSR CLRCHN ;RESET I/O
+.200d	a9 70		lda #$70	 LDA #<MSF2
+.200f	a0 24		ldy #$24	 LDY #>MSF2
+.2011	20 0e 28	jsr $280e	 JSR STRPNT
+.2014	ad 3d 1c	lda $1c3d	 LDA SA
+.2017	8d 64 1c	sta $1c64	 STA WORKED
+.201a	ad 3e 1c	lda $1c3e	 LDA SA+1
+.201d	8d 65 1c	sta $1c65	 STA WORKED+1
+.2020	20 16 2d	jsr $2d16	 JSR PWORKD
+.2023	a9 2d		lda #$2d	 LDA #'-'
+.2025	20 64 28	jsr $2864	 JSR PCHAR
+.2028	20 24 2d	jsr $2d24	 JSR DOLLAR
+.202b	20 0a 2d	jsr $2d0a	 JSR PSELEC
+.202e	20 47 2d	jsr $2d47	 JSR CRLF
+.2031	a5 39		lda $39		 LDA MEMSIZ
+.2033	8d 41 1c	sta $1c41	 STA SELECT
+.2036	a5 3a		lda $3a		 LDA MEMSIZ+1
+.2038	8d 42 1c	sta $1c42	 STA SELECT+1
+.203b	20 98 2d	jsr $2d98	 JSR DECSL
+.203e	38		sec		 SEC
+.203f	ad 41 1c	lda $1c41	 LDA SELECT
+.2042	ed 6e 1c	sbc $1c6e	 SBC ADRS
+.2045	8d 41 1c	sta $1c41	 STA SELECT
+.2048	ad 42 1c	lda $1c42	 LDA SELECT+1
+.204b	ed 6f 1c	sbc $1c6f	 SBC ADRS+1
+.204e	8d 42 1c	sta $1c42	 STA SELECT+1
+.2051	38		sec		 SEC
+.2052	ad 41 1c	lda $1c41	 LDA SELECT
+.2055	ed 3d 1c	sbc $1c3d	 SBC SA
+.2058	8d 43 1c	sta $1c43	 STA OFFSET
+.205b	8d 64 1c	sta $1c64	 STA WORKED
+.205e	ad 42 1c	lda $1c42	 LDA SELECT+1
+.2061	ed 3e 1c	sbc $1c3e	 SBC SA+1
+.2064	8d 44 1c	sta $1c44	 STA OFFSET+1
+.2067	8d 65 1c	sta $1c65	 STA WORKED+1
+.206a	a9 00		lda #$00	 LDA #<MSD4A
+.206c	a0 25		ldy #$25	 LDY #>MSD4A
+.206e	20 0e 28	jsr $280e	 JSR STRPNT
+.2071	20 16 2d	jsr $2d16	 JSR PWORKD
+.2074	20 47 2d	jsr $2d47	 JSR CRLF
+.2077	20 ab 20	jsr $20ab	 JSR PRFILE ;OPEN FILE
+.207a	a2 08		ldx #$08	 LDX #$08 ;FILE #8
+.207c	20 c6 ff	jsr $ffc6	 JSR CHKIN ;INPUT FILE
+.207f	20 cf ff	jsr $ffcf	 JSR CHRIN ;GET LOW BYTE SA
+.2082	20 cf ff	jsr $ffcf	 JSR CHRIN ;GET HIGH BYTE SA
+.2085	20 cf ff	jsr $ffcf	PRO2RD JSR CHRIN ;INPUT BYTE
+.2088	ae 41 1c	ldx $1c41	 LDX SELECT ;LOW BYTE POINTER
+.208b	86 fb		stx $fb		 STX ZEROUR ;ZERO PAGE
+.208d	ae 42 1c	ldx $1c42	 LDX SELECT+1 ;HIGH BYTE POINTER
+.2090	86 fc		stx $fc		 STX ZEROUR+1 ;ZERO PAGE
+.2092	a2 01		ldx #$01	 LDX #$01 ;RAM BANK 1
+.2094	a0 00		ldy #$00	 LDY #$00 ;OFFSET
+.2096	91 fb		sta ($fb),y	 STA (ZEROUR),Y ;STORE BYTE
+.2098	20 77 2d	jsr $2d77	 JSR INCSL ;INC POINTER
+.209b	20 b7 ff	jsr $ffb7	 JSR READST ;READ STATUS
+.209e	f0 e5		beq $2085	 BEQ PRO2RD ;NEXT BYTE
+.20a0	a9 08		lda #$08	 LDA #$08 ;FILE #8
+.20a2	20 c3 ff	jsr $ffc3	 JSR CLOSE ;CLOSE IT
+.20a5	20 cc ff	jsr $ffcc	 JSR CLRCHN ;RESET I/O
+.20a8	4c 40 21	jmp $2140	 JMP WINDOP ;WINDOW OPTION
+.20ab	ad 71 1c	lda $1c71	PRFILE LDA SAVA
+.20ae	a2 7b		ldx #$7b	 LDX #<BUF
+.20b0	a0 1c		ldy #$1c	 LDY #>BUF
+.20b2	20 bd ff	jsr $ffbd	 JSR SETNAM
+.20b5	a9 08		lda #$08	 LDA #$08
+.20b7	a8		tay		 TAY
+.20b8	aa		tax		 TAX
+.20b9	20 ba ff	jsr $ffba	 JSR SETLFS
+.20bc	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.20be	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.20c0	20 68 ff	jsr $ff68	 JSR SETBNK
+.20c3	20 c0 ff	jsr $ffc0	 JSR OPEN
+.20c6	20 17 27	jsr $2717	 JSR DISERR
+.20c9	90 11		bcc $20dc	 BCC PROGOK
+.20cb	a9 08		lda #$08	 LDA #$08
+.20cd	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.20d0	68		pla		 PLA
+.20d1	68		pla		 PLA
+.20d2	68		pla		 PLA
+.20d3	68		pla		 PLA
+.20d4	a9 00		lda #$00	 LDA #$00  ;BANK 15
+.20d6	8d 00 ff	sta $ff00	 STA $FF00 ;
+.20d9	4c 37 4d	jmp $4d37	 JMP WREADY
+.20dc	60		rts		PROGOK RTS
+.20dd	a9 02		lda #$02	INITD LDA #$02
+.20df	a0 24		ldy #$24	 LDY #>INIT
+.20e1	a2 a9		ldx #$a9	 LDX #<INIT
+.20e3	20 bd ff	jsr $ffbd	 JSR SETNAM
+.20e6	a9 0f		lda #$0f	 LDA #$0F
+.20e8	a2 08		ldx #$08	 LDX #$08
+.20ea	a0 0f		ldy #$0f	 LDY #$0F
+.20ec	20 ba ff	jsr $ffba	 JSR SETLFS
+.20ef	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.20f1	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.20f3	20 68 ff	jsr $ff68	 JSR SETBNK
+.20f6	20 c0 ff	jsr $ffc0	 JSR OPEN
+.20f9	a9 0f		lda #$0f	 LDA #$0F
+.20fb	4c c3 ff	jmp $ffc3	 JMP CLOSE
+.20fe	a9 c4		lda #$c4	STARTS LDA #<MSD1
+.2100	a0 24		ldy #$24	 LDY #>MSD1
+.2102	20 0e 28	jsr $280e	 JSR STRPNT
+.2105	20 7e 27	jsr $277e	 JSR GETWRD
+.2108	ad 6e 1c	lda $1c6e	 LDA ADRS
+.210b	8d 3d 1c	sta $1c3d	 STA SA
+.210e	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.2111	8d 3e 1c	sta $1c3e	 STA SA+1
+.2114	a9 d6		lda #$d6	 LDA #<MSD2
+.2116	a0 24		ldy #$24	 LDY #>MSD2
+.2118	20 0e 28	jsr $280e	 JSR STRPNT
+.211b	20 7e 27	jsr $277e	 JSR GETWRD
+.211e	ad 6e 1c	lda $1c6e	 LDA ADRS
+.2121	8d 3f 1c	sta $1c3f	 STA EA
+.2124	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.2127	8d 40 1c	sta $1c40	 STA EA+1
+.212a	a9 e6		lda #$e6	 LDA #<MSD4
+.212c	a0 24		ldy #$24	 LDY #>MSD4
+.212e	20 0e 28	jsr $280e	 JSR STRPNT
+.2131	20 7e 27	jsr $277e	 JSR GETWRD
+.2134	ad 6e 1c	lda $1c6e	 LDA ADRS
+.2137	8d 43 1c	sta $1c43	 STA OFFSET
+.213a	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.213d	8d 44 1c	sta $1c44	 STA OFFSET+1
+.2140	a9 13		lda #$13	WINDOP LDA #<MSD5
+.2142	a0 25		ldy #$25	 LDY #>MSD5
+.2144	20 0e 28	jsr $280e	 JSR STRPNT
+.2147	20 e3 27	jsr $27e3	 JSR CRNO
+.214a	b0 30		bcs $217c	 BCS WIND1
+.214c	a9 c4		lda #$c4	 LDA #<MSD1
+.214e	a0 24		ldy #$24	 LDY #>MSD1
+.2150	20 0e 28	jsr $280e	 JSR STRPNT
+.2153	20 7e 27	jsr $277e	 JSR GETWRD
+.2156	ad 6e 1c	lda $1c6e	 LDA ADRS
+.2159	8d 49 1c	sta $1c49	 STA SAOUT
+.215c	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.215f	8d 4a 1c	sta $1c4a	 STA SAOUT+1
+.2162	a9 d6		lda #$d6	 LDA #<MSD2
+.2164	a0 24		ldy #$24	 LDY #>MSD2
+.2166	20 0e 28	jsr $280e	 JSR STRPNT
+.2169	20 7e 27	jsr $277e	 JSR GETWRD
+.216c	ad 6e 1c	lda $1c6e	 LDA ADRS
+.216f	8d 4b 1c	sta $1c4b	 STA EAOUT
+.2172	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.2175	8d 4c 1c	sta $1c4c	 STA EAOUT+1
+.2178	a9 ff		lda #$ff	 LDA #$FF
+.217a	30 02		bmi $217e	 BMI WIND2
+.217c	a9 00		lda #$00	WIND1 LDA #$00
+.217e	8d 3a 1c	sta $1c3a	WIND2 STA WINDOW
+.2181	ad 3d 1c	lda $1c3d	 LDA SA
+.2184	8d 45 1c	sta $1c45	 STA SAGOL
+.2187	ad 3e 1c	lda $1c3e	 LDA SA+1
+.218a	8d 46 1c	sta $1c46	 STA SAGOL+1
+.218d	ad 3f 1c	lda $1c3f	 LDA EA
+.2190	8d 47 1c	sta $1c47	 STA EAGOL
+.2193	ad 40 1c	lda $1c40	 LDA EA+1
+.2196	8d 48 1c	sta $1c48	 STA EAGOL+1
+.2199	a9 84		lda #$84	OUFILE LDA #<MSG1
+.219b	a0 24		ldy #$24	 LDY #>MSG1
+.219d	20 0e 28	jsr $280e	 JSR STRPNT
+.21a0	a9 00		lda #$00	 LDA #$00
+.21a2	8d e2 1c	sta $1ce2	 STA NCHARS
+.21a5	20 6f 27	jsr $276f	 JSR INSTNG
+.21a8	f0 1a		beq $21c4	 BEQ NOFILE
+.21aa	a9 30		lda #$30	 LDA #'0'
+.21ac	8d e1 1c	sta $1ce1	 STA VERSON
+.21af	8c e2 1c	sty $1ce2	 STY NCHARS
+.21b2	a2 00		ldx #$00	 LDX #$00
+.21b4	bd 7b 1c	lda $1c7b,x	GFILE0 LDA BUF,X
+.21b7	9d e3 1c	sta $1ce3,x	 STA NBUF,X
+.21ba	e8		inx		 INX
+.21bb	ec e2 1c	cpx $1ce2	 CPX NCHARS
+.21be	d0 f4		bne $21b4	 BNE GFILE0
+.21c0	a9 08		lda #$08	FILEOK LDA #$08
+.21c2	d0 02		bne $21c6	 BNE FILE
+.21c4	a9 00		lda #$00	NOFILE LDA #$00
+.21c6	0d 39 1c	ora $1c39	FILE ORA OUTPUT
+.21c9	8d 39 1c	sta $1c39	 STA OUTPUT
+.21cc	4c 31 22	jmp $2231	 JMP PRTGET
+.21cf	ac e2 1c	ldy $1ce2	OFILED LDY NCHARS
+.21d2	f0 03		beq $21d7	 BEQ NOID
+.21d4	20 dd 20	jsr $20dd	 JSR INITD
+.21d7	20 4b 29	jsr $294b	NOID JSR SCROFF
+.21da	ac e2 1c	ldy $1ce2	OFILE LDY NCHARS
+.21dd	f0 51		beq $2230	 BEQ OFILE4
+.21df	ad e1 1c	lda $1ce1	 LDA VERSON
+.21e2	c9 30		cmp #$30	 CMP #'0'
+.21e4	f0 07		beq $21ed	 BEQ OFILE1
+.21e6	ad e1 1c	lda $1ce1	 LDA VERSON
+.21e9	99 e3 1c	sta $1ce3,y	 STA NBUF,Y
+.21ec	c8		iny		 INY
+.21ed	ee e1 1c	inc $1ce1	OFILE1 INC VERSON
+.21f0	a2 00		ldx #$00	 LDX #$00
+.21f2	bd a1 24	lda $24a1,x	OFILE2 LDA WRITE,X
+.21f5	99 e3 1c	sta $1ce3,y	 STA NBUF,Y
+.21f8	c8		iny		 INY
+.21f9	e8		inx		 INX
+.21fa	e0 04		cpx #$04	 CPX #$04
+.21fc	d0 f4		bne $21f2	 BNE OFILE2
+.21fe	98		tya		 TYA
+.21ff	a0 1c		ldy #$1c	 LDY #>NBUF
+.2201	a2 e3		ldx #$e3	 LDX #<NBUF
+.2203	20 bd ff	jsr $ffbd	 JSR SETNAM
+.2206	a9 08		lda #$08	 LDA #$08
+.2208	aa		tax		 TAX
+.2209	a8		tay		 TAY
+.220a	20 ba ff	jsr $ffba	 JSR SETLFS
+.220d	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.220f	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.2211	20 68 ff	jsr $ff68	 JSR SETBNK
+.2214	20 c0 ff	jsr $ffc0	 JSR OPEN
+.2217	20 17 27	jsr $2717	 JSR DISERR
+.221a	90 14		bcc $2230	 BCC OFILE4
+.221c	a9 08		lda #$08	OFILE3 LDA #$08
+.221e	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.2221	20 cc ff	jsr $ffcc	 JSR CLRCHN
+.2224	68		pla		 PLA
+.2225	68		pla		 PLA
+.2226	68		pla		 PLA
+.2227	68		pla		 PLA
+.2228	a9 00		lda #$00	 LDA #$00  ;BANK 15
+.222a	8d 00 ff	sta $ff00	 STA $FF00 ;
+.222d	4c 37 4d	jmp $4d37	 JMP WREADY
+.2230	60		rts		OFILE4 RTS
+.2231	a9 ab		lda #$ab	PRTGET LDA #<MSG2
+.2233	a0 24		ldy #$24	 LDY #>MSG2
+.2235	20 0e 28	jsr $280e	 JSR STRPNT
+.2238	20 d6 27	jsr $27d6	 JSR CRYS
+.223b	b0 2d		bcs $226a	 BCS NOPRT
+.223d	a9 00		lda #$00	 LDA #$00
+.223f	20 bd ff	jsr $ffbd	 JSR SETNAM
+.2242	a9 04		lda #$04	 LDA #$04
+.2244	a2 04		ldx #$04	 LDX #$04
+.2246	a0 00		ldy #$00	 LDY #$00
+.2248	20 ba ff	jsr $ffba	 JSR SETLFS
+.224b	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.224d	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.224f	20 68 ff	jsr $ff68	 JSR SETBNK
+.2252	20 c0 ff	jsr $ffc0	 JSR OPEN
+.2255	a2 04		ldx #$04	 LDX #$04
+.2257	20 c9 ff	jsr $ffc9	 JSR CHKOUT
+.225a	20 b7 ff	jsr $ffb7	 JSR READST
+.225d	29 80		and #$80	 AND #$80
+.225f	08		php		 PHP
+.2260	20 cc ff	jsr $ffcc	 JSR CLRCHN
+.2263	28		plp		 PLP
+.2264	30 04		bmi $226a	 BMI NOPRT
+.2266	a9 04		lda #$04	 LDA #$04
+.2268	d0 02		bne $226c	 BNE PRINT
+.226a	a9 03		lda #$03	NOPRT LDA #$03
+.226c	0d 39 1c	ora $1c39	PRINT ORA OUTPUT
+.226f	8d 39 1c	sta $1c39	 STA OUTPUT
+.2272	20 16 37	jsr $3716	       JSR SOP
+.2275	a9 2f		lda #$2f	       LDA #<MSR1
+.2277	a0 25		ldy #$25	       LDY #>MSR1
+.2279	20 0e 28	jsr $280e	       JSR STRPNT
+.227c	20 d6 27	jsr $27d6	       JSR CRYS
+.227f	90 04		bcc $2285	       BCC DOP2
+.2281	a9 01		lda #$01	       LDA #$01
+.2283	d0 02		bne $2287	       BNE DOP3
+.2285	a9 00		lda #$00	DOP2   LDA #$00
+.2287	8d 37 1c	sta $1c37	DOP3   STA ROPT
+.228a	20 9f 43	jsr $439f	       JSR BITOPT
+.228d	ad 5c 1c	lda $1c5c	AOP LDA SYMBOE
+.2290	8d 0a 1d	sta $1d0a	 STA DATABP
+.2293	8d 0c 1d	sta $1d0c	 STA DATABS
+.2296	8d 0e 1d	sta $1d0e	 STA DATABE
+.2299	85 fb		sta $fb		 STA ZEROUR
+.229b	ad 5d 1c	lda $1c5d	 LDA SYMBOE+1
+.229e	8d 0b 1d	sta $1d0b	 STA DATABP+1
+.22a1	8d 0d 1d	sta $1d0d	 STA DATABS+1
+.22a4	8d 0f 1d	sta $1d0f	 STA DATABE+1
+.22a7	85 fc		sta $fc		 STA ZEROUR+1
+.22a9	a9 bd		lda #$bd	 LDA #<MSAOP
+.22ab	a0 25		ldy #$25	 LDY #>MSAOP
+.22ad	20 0e 28	jsr $280e	 JSR STRPNT
+.22b0	20 6f 27	jsr $276f	 JSR INSTNG
+.22b3	d0 03		bne $22b8	 BNE BOP
+.22b5	4c 3f 23	jmp $233f	 JMP NOTABS
+.22b8	98		tya		BOP TYA
+.22b9	48		pha		 PHA
+.22ba	20 dd 20	jsr $20dd	 JSR INITD
+.22bd	68		pla		 PLA
+.22be	a8		tay		 TAY
+.22bf	a2 00		ldx #$00	 LDX #$00
+.22c1	bd 86 3a	lda $3a86,x	AFILE LDA NAMS,X
+.22c4	99 7b 1c	sta $1c7b,y	 STA BUF,Y
+.22c7	c8		iny		 INY
+.22c8	e8		inx		 INX
+.22c9	e0 04		cpx #$04	 CPX #$04
+.22cb	d0 f4		bne $22c1	 BNE AFILE
+.22cd	98		tya		 TYA
+.22ce	a0 1c		ldy #$1c	 LDY #>BUF
+.22d0	a2 7b		ldx #$7b	 LDX #<BUF
+.22d2	20 bd ff	jsr $ffbd	 JSR SETNAM
+.22d5	a9 03		lda #$03	 LDA #$03
+.22d7	a2 08		ldx #$08	 LDX #$08
+.22d9	a0 03		ldy #$03	 LDY #$03
+.22db	20 ba ff	jsr $ffba	 JSR SETLFS
+.22de	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.22e0	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.22e2	20 68 ff	jsr $ff68	 JSR SETBNK
+.22e5	20 c0 ff	jsr $ffc0	 JSR OPEN
+.22e8	20 17 27	jsr $2717	 JSR DISERR
+.22eb	b0 1b		bcs $2308	 BCS AGET1
+.22ed	a2 03		ldx #$03	 LDX #$03
+.22ef	20 c6 ff	jsr $ffc6	 JSR CHKIN
+.22f2	a0 00		ldy #$00	 LDY #$00
+.22f4	20 cf ff	jsr $ffcf	 JSR CHRIN
+.22f7	8d 08 1d	sta $1d08	 STA NDATA
+.22fa	f0 0c		beq $2308	 BEQ AGET1
+.22fc	20 cf ff	jsr $ffcf	AGET JSR CHRIN
+.22ff	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.2302	c8		iny		 INY
+.2303	20 b7 ff	jsr $ffb7	 JSR READST
+.2306	f0 f4		beq $22fc	 BEQ AGET
+.2308	a9 03		lda #$03	AGET1 LDA #$03
+.230a	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.230d	20 cc ff	jsr $ffcc	 JSR CLRCHN
+.2310	ad 08 1d	lda $1d08	PRTDAS LDA NDATA
+.2313	8d 06 1d	sta $1d06	 STA CDATA
+.2316	a0 00		ldy #$00	 LDY #$00
+.2318	8c 73 1c	sty $1c73	 STY SAVY
+.231b	20 47 2d	jsr $2d47	PRTNEX JSR CRLF
+.231e	a2 05		ldx #$05	 LDX #$05
+.2320	8e 72 1c	stx $1c72	 STX SAVX
+.2323	ac 73 1c	ldy $1c73	PRTDAL LDY SAVY
+.2326	b9 10 1d	lda $1d10,y	 LDA TDATA,Y
+.2329	20 f8 27	jsr $27f8	 JSR PRBYT
+.232c	20 59 2d	jsr $2d59	 JSR SPACE
+.232f	ee 73 1c	inc $1c73	 INC SAVY
+.2332	ce 72 1c	dec $1c72	 DEC SAVX
+.2335	d0 ec		bne $2323	 BNE PRTDAL
+.2337	ce 06 1d	dec $1d06	 DEC CDATA
+.233a	d0 df		bne $231b	 BNE PRTNEX
+.233c	4c dc 23	jmp $23dc	 JMP XOP0
+.233f	a9 dc		lda #$dc	NOTABS LDA #<MSA1 ;NUMBER OF DATA
+.2341	a0 25		ldy #$25	 LDY #>MSA1
+.2343	20 0e 28	jsr $280e	 JSR STRPNT
+.2346	20 7e 27	jsr $277e	 JSR GETWRD ;INPUT HEX BYTE
+.2349	ad 6e 1c	lda $1c6e	 LDA ADRS ;GET BYTE
+.234c	8d 08 1d	sta $1d08	 STA NDATA ;SET NUM TABLES
+.234f	d0 03		bne $2354	 BNE AOPX ;0 DATA THEN END
+.2351	4c dc 23	jmp $23dc	 JMP XOP0 ;RETURN
+.2354	a9 00		lda #$00	AOPX LDA #$00 ;ZERO OFFSET
+.2356	8d 06 1d	sta $1d06	 STA CDATA ;FIRST TABLE
+.2359	ad 06 1d	lda $1d06	AOP1 LDA CDATA ;GET TABLE NUMBER
+.235c	0a		asl a		 ASL A ;*2
+.235d	0a		asl a		 ASL A ;*4
+.235e	18		clc		 CLC ;C=0
+.235f	6d 06 1d	adc $1d06	 ADC CDATA ;*5
+.2362	8d 73 1c	sta $1c73	 STA SAVY ;STORE AS OFFSET
+.2365	a9 fe		lda #$fe	 LDA #<MSA2
+.2367	a0 25		ldy #$25	 LDY #>MSA2
+.2369	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT MSG
+.236c	20 7e 27	jsr $277e	 JSR GETWRD ;GET ADDRESS
+.236f	ac 73 1c	ldy $1c73	 LDY SAVY ;GET OFFSET
+.2372	ad 6e 1c	lda $1c6e	 LDA ADRS
+.2375	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.2378	c8		iny		 INY
+.2379	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.237c	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.237f	c8		iny		 INY
+.2380	8c 73 1c	sty $1c73	 STY SAVY
+.2383	a9 16		lda #$16	AOP2 LDA #<MSA3
+.2385	a0 26		ldy #$26	 LDY #>MSA3
+.2387	20 0e 28	jsr $280e	 JSR STRPNT
+.238a	20 7e 27	jsr $277e	 JSR GETWRD ;GET ADDRESS
+.238d	ac 73 1c	ldy $1c73	 LDY SAVY
+.2390	ad 6e 1c	lda $1c6e	 LDA ADRS
+.2393	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.2396	c8		iny		 INY
+.2397	ad 6f 1c	lda $1c6f	 LDA ADRS+1
+.239a	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.239d	c8		iny		 INY
+.239e	8c 73 1c	sty $1c73	 STY SAVY
+.23a1	a9 2c		lda #$2c	 LDA #<MSG5 ;TABLE TYPE
+.23a3	a0 26		ldy #$26	 LDY #>MSG5
+.23a5	20 0e 28	jsr $280e	 JSR STRPNT
+.23a8	20 e4 ff	jsr $ffe4	AOP3 JSR GETIN
+.23ab	f0 fb		beq $23a8	 BEQ AOP3
+.23ad	c9 30		cmp #$30	 CMP #'0'
+.23af	f0 14		beq $23c5	 BEQ ASC
+.23b1	c9 31		cmp #$31	 CMP #'1'
+.23b3	f0 10		beq $23c5	 BEQ ASC
+.23b5	c9 32		cmp #$32	 CMP #'2'
+.23b7	f0 0c		beq $23c5	 BEQ ASC
+.23b9	c9 33		cmp #$33	 CMP #'3'
+.23bb	f0 08		beq $23c5	 BEQ ASC
+.23bd	c9 34		cmp #$34	 CMP #'4'
+.23bf	f0 04		beq $23c5	 BEQ ASC
+.23c1	c9 53		cmp #$53	 CMP #'S'
+.23c3	d0 e3		bne $23a8	 BNE AOP3
+.23c5	20 d2 ff	jsr $ffd2	ASC JSR CHROUT
+.23c8	ac 73 1c	ldy $1c73	 LDY SAVY
+.23cb	99 10 1d	sta $1d10,y	 STA TDATA,Y
+.23ce	ee 06 1d	inc $1d06	 INC CDATA ;INC TABLE COUNT
+.23d1	ad 06 1d	lda $1d06	 LDA CDATA ;GET TABLE COUNT
+.23d4	cd 08 1d	cmp $1d08	 CMP NDATA ;ALL TABLES?
+.23d7	f0 03		beq $23dc	 BEQ XOP0 ;IF NOT GET MORE
+.23d9	4c 59 23	jmp $2359	 JMP AOP1 ;IF NOT GET MORE
+.23dc	a9 98		lda #$98	XOP0 LDA #<MSB4
+.23de	a0 26		ldy #$26	 LDY #>MSB4
+.23e0	20 0e 28	jsr $280e	 JSR STRPNT
+.23e3	20 d6 27	jsr $27d6	 JSR CRYS
+.23e6	b0 04		bcs $23ec	 BCS XOP1
+.23e8	a9 01		lda #$01	 LDA #$01
+.23ea	d0 02		bne $23ee	 BNE XOP2
+.23ec	a9 00		lda #$00	XOP1 LDA #$00
+.23ee	8d 36 1c	sta $1c36	XOP2 STA XOPT
+.23f1	a9 b8		lda #$b8	 LDA #<MSB5
+.23f3	a0 26		ldy #$26	 LDY #>MSB5
+.23f5	20 0e 28	jsr $280e	 JSR STRPNT
+.23f8	20 d6 27	jsr $27d6	 JSR CRYS
+.23fb	b0 04		bcs $2401	 BCS FOP1
+.23fd	a9 00		lda #$00	 LDA #$00
+.23ff	f0 02		beq $2403	 BEQ FOP2
+.2401	a9 ff		lda #$ff	FOP1 LDA #$FF
+.2403	8d 3b 1c	sta $1c3b	FOP2 STA FOROPT
+.2406	60		rts		 RTS
+>2407	0d 0d				MSG .TEXT $0D,$0D
+>2409	43 42 4d 20 52 45 53 49		.TEXT 'CBM RESIDENT DISASSEMBLER'
+>2411	44 45 4e 54 20 44 49 53 41 53 53 45 4d 42 4c 45
+>2421	52
+>2422	20 56 30 38 30 32 38 32		.TEXT ' V080282'
+>242a	0d				.BYTE $0D
+>242b	28 43 29 20 31 39 38 32		.TEXT '(C) 1982 BY COMMODORE '
+>2433	20 42 59 20 43 4f 4d 4d 4f 44 4f 52 45 20
+>2441	42 55 53 49 4e 45 53 53		.TEXT 'BUSINESS MACHINES'
+>2449	20 4d 41 43 48 49 4e 45 53
+>2452	0d				.BYTE $0D
+>2453	00				.BYTE 0
+>2454	0d				MSF1 .BYTE $0D
+>2455	50 52 4f 47 52 41 4d 20		.TEXT 'PROGRAM FILE (CR OR NAME):'
+>245d	46 49 4c 45 20 28 43 52 20 4f 52 20 4e 41 4d 45
+>246d	29 3a
+>246f	00				.BYTE 0
+>2470	0d				MSF2 .BYTE $0D
+>2471	50 52 4f 47 52 41 4d 20		.TEXT 'PROGRAM ADDRESS: $'
+>2479	41 44 44 52 45 53 53 3a 20 24
+>2483	00				.BYTE 0
+>2484	0d				MSG1 .BYTE $0D
+>2485	45 44 49 54 4f 52 36 34		.TEXT 'EDITOR64 FILE (CR OR NAME):'
+>248d	20 46 49 4c 45 20 28 43 52 20 4f 52 20 4e 41 4d
+>249d	45 29 3a
+>24a0	00				.BYTE 0
+>24a1	2c 53 2c 57			WRITE .TEXT ',S,W'
+>24a5	2c 50 2c 52			PROGM .TEXT ',P,R'
+>24a9	49 30				INIT  .TEXT 'I0'
+>24ab	0d				MSG2 .BYTE $0D
+>24ac	48 41 52 44 20 43 4f 50		.TEXT 'HARD COPY (Y/CR OR N)? '
+>24b4	59 20 28 59 2f 43 52 20 4f 52 20 4e 29 3f 20
+>24c3	00				.BYTE 0
+>24c4	0d				MSD1 .BYTE $0D
+>24c5	53 54 41 52 54 20 41 44		.TEXT 'START ADDRESS :$'
+>24cd	44 52 45 53 53 20 3a 24
+>24d5	00				.BYTE 0
+>24d6	0d				MSD2 .BYTE $0D
+>24d7	45 4e 44 20 41 44 44 52		.TEXT 'END ADDRESS :$'
+>24df	45 53 53 20 3a 24
+>24e5	00				.BYTE 0
+>24e6	0d				MSD4 .BYTE $0D
+>24e7	41 44 44 52 45 53 53 20		.TEXT 'ADDRESS OFFSET (OR CR):$'
+>24ef	4f 46 46 53 45 54 20 28 4f 52 20 43 52 29 3a 24
+>24ff	00				.BYTE 0
+>2500	0d				MSD4A .BYTE $0D
+>2501	41 44 44 52 45 53 53 20		.TEXT 'ADDRESS OFFSET :$'
+>2509	4f 46 46 53 45 54 20 3a 24
+>2512	00				.BYTE 0
+>2513	0d				MSD5 .BYTE $0D
+>2514	57 49 4e 44 4f 57 20 4f		.TEXT 'WINDOW OUTPUT(Y OR N/CR)? '
+>251c	55 54 50 55 54 28 59 20 4f 52 20 4e 2f 43 52 29
+>252c	3f 20
+>252e	00				.BYTE 0
+>252f	0d				MSR1 .BYTE $0D
+>2530	52 45 4c 41 54 49 56 45		.TEXT 'RELATIVE BRANCH TO LABEL '
+>2538	20 42 52 41 4e 43 48 20 54 4f 20 4c 41 42 45 4c
+>2548	20
+>2549	28 59 2f 43 52 20 4f 52		.TEXT '(Y/CR OR N)? '
+>2551	20 4e 29 3f 20
+>2556	00				.BYTE 0
+>2557	0d				MSB1 .BYTE $0D
+>2558	42 49 54 20 49 4e 53 54		 .TEXT 'BIT INSTRUCTION CODING'
+>2560	52 55 43 54 49 4f 4e 20 43 4f 44 49 4e 47
+>256e	0d 0d				 .BYTE $0D,$0D
+>2570	30 2f 43 52 20 53 54 41		 .TEXT '0/CR STANDARD',$0D
+>2578	4e 44 41 52 44 0d
+>257e	31 20 20 20 20 20 24 32		 .TEXT '1     $2C ABS',$0D
+>2586	43 20 41 42 53 0d
+>258c	32 20 20 20 20 20 24 32		 .TEXT '2     $24 ZP',$0D
+>2594	34 20 5a 50 0d
+>2599	33 20 20 20 20 20 24 32		 .TEXT '3     $2C AND $24',$0D
+>25a1	43 20 41 4e 44 20 24 32 34 0d
+>25ab	0d				 .BYTE $0D
+>25ac	45 4e 54 45 52 20 42 49		 .TEXT 'ENTER BIT CODE: '
+>25b4	54 20 43 4f 44 45 3a 20
+>25bc	00				 .BYTE 0
+>25bd	0d				MSAOP .BYTE $0D
+>25be	44 41 54 41 20 54 41 42		.TEXT 'DATA TABLE FILE (CR OR NAME):'
+>25c6	4c 45 20 46 49 4c 45 20 28 43 52 20 4f 52 20 4e
+>25d6	41 4d 45 29 3a
+>25db	00				.BYTE 0
+>25dc	0d				MSA1 .BYTE $0D
+>25dd	4e 55 4d 42 45 52 20 4f		.TEXT 'NUMBER OF DATA TABLES (OR CR) :$'
+>25e5	46 20 44 41 54 41 20 54 41 42 4c 45 53 20 28 4f
+>25f5	52 20 43 52 29 20 3a 24
+>25fd	00				.BYTE 0
+>25fe	0d				MSA2 .BYTE $0D
+>25ff	54 41 42 4c 45 20 53 54		.TEXT 'TABLE START ADDRESS :$'
+>2607	41 52 54 20 41 44 44 52 45 53 53 20 3a 24
+>2615	00				.BYTE 0
+>2616	0d				MSA3 .BYTE $0D
+>2617	54 41 42 4c 45 20 45 4e		.TEXT 'TABLE END ADDRESS :$'
+>261f	44 20 41 44 44 52 45 53 53 20 3a 24
+>262b	00				.BYTE 0
+>262c	0d 0d				MSG5 .BYTE $0D,$0D
+>262e	44 49 53 41 53 53 45 4d		 .TEXT 'DISASSEMBLY OPTIONS'
+>2636	42 4c 59 20 4f 50 54 49 4f 4e 53
+>2641	0d 0d				 .BYTE $0D,$0D
+>2643	30 20 41 53 43 49 49 0d		 .TEXT '0 ASCII',$0D
+>264b	31 20 42 59 54 45 0d		 .TEXT '1 BYTE',$0D
+>2652	32 20 57 4f 52 44 0d		 .TEXT '2 WORD',$0D
+>2659	33 20 44 42 59 54 45 0d		 .TEXT '3 DBYTE',$0D
+>2661	34 20 57 4f 52 44 2d 31		 .TEXT '4 WORD-1',$0D
+>2669	0d
+>266a	53 20 53 4b 49 50 20 41		 .TEXT 'S SKIP ADDRESS RANGE',$0D
+>2672	44 44 52 45 53 53 20 52 41 4e 47 45 0d
+>267f	45 4e 54 45 52 20 44 49		 .TEXT 'ENTER DISASSEMBLY CODE: '
+>2687	53 41 53 53 45 4d 42 4c 59 20 43 4f 44 45 3a 20
+>2697	00				 .BYTE 0
+>2698	0d				MSB4 .BYTE $0D
+>2699	4c 41 42 4c 45 20 47 45		.TEXT 'LABLE GENERATION (Y/CR OR N)? '
+>26a1	4e 45 52 41 54 49 4f 4e 20 28 59 2f 43 52 20 4f
+>26b1	52 20 4e 29 3f 20
+>26b7	00				.BYTE 0
+>26b8	0d				MSB5 .BYTE $0D
+>26b9	46 4f 52 4d 41 54 45 44		.TEXT 'FORMATED LISTING (Y/CR OR N)? '
+>26c1	20 4c 49 53 54 49 4e 47 20 28 59 2f 43 52 20 4f
+>26d1	52 20 4e 29 3f 20
+>26d7	00				.BYTE 0
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: util.asm
+
+.26d8	ad 31 1c	lda $1c31	LINECK LDA PASS
+.26db	cd 34 1c	cmp $1c34	 CMP CPASS
+.26de	d0 36		bne $2716	 BNE LINECO
+.26e0	ad 38 1c	lda $1c38	 LDA DEVICE
+.26e3	29 08		and #$08	 AND #$08
+.26e5	f0 2f		beq $2716	 BEQ LINECO
+.26e7	38		sec		 SEC
+.26e8	ad df 1c	lda $1cdf	 LDA LINEFL
+.26eb	e9 20		sbc #$20	 SBC #$20
+.26ed	8d 70 1c	sta $1c70	 STA TEMP
+.26f0	ad e0 1c	lda $1ce0	 LDA LINEFL+1
+.26f3	e9 03		sbc #$03	 SBC #$03
+.26f5	0d 70 1c	ora $1c70	 ORA TEMP
+.26f8	90 1c		bcc $2716	 BCC LINECO
+.26fa	ea		nop		 NOP
+.26fb	ea		nop		 NOP
+.26fc	ea		nop		 NOP
+.26fd	20 a5 2c	jsr $2ca5	 JSR EFILE
+.2700	a9 08		lda #$08	 LDA #$08
+.2702	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.2705	20 da 21	jsr $21da	 JSR OFILE
+.2708	a9 00		lda #$00	 LDA #$00
+.270a	8d df 1c	sta $1cdf	 STA LINEFL
+.270d	8d e0 1c	sta $1ce0	 STA LINEFL+1
+.2710	20 8f 2c	jsr $2c8f	 JSR ORGIN
+.2713	20 b5 2c	jsr $2cb5	 JSR COMENT
+.2716	60		rts		LINECO RTS
+.2717	a9 08		lda #$08	DISERR LDA #$08 ;DEV #8
+.2719	85 ba		sta $ba		 STA $BA ;PUT IN DEV TABLE
+.271b	20 b4 ff	jsr $ffb4	 JSR $FFB4 ;SEND TALK
+.271e	a9 6f		lda #$6f	 LDA #$6F ;SECONDARY ADDRESS
+.2720	85 b9		sta $b9		 STA $B9 ;PUT IN TABLE
+.2722	20 96 ff	jsr $ff96	 JSR $FF96 ;SEND SEC
+.2725	20 a5 ff	jsr $ffa5	 JSR $FFA5 ;GET FIRST BYTE
+.2728	c9 30		cmp #$30	 CMP #$30 ;IS IT A ZERO
+.272a	d0 0c		bne $2738	 BNE DLOOC ;IF NOT ZERO ERROR
+.272c	20 a5 ff	jsr $ffa5	DLOOE JSR $FFA5 ;GET BYTE
+.272f	c9 0d		cmp #$0d	 CMP #$0D ;IS IT CR?
+.2731	d0 f9		bne $272c	 BNE DLOOE ;GET NEXT BYTE
+.2733	20 ab ff	jsr $ffab	 JSR $FFAB ;UNTALK
+.2736	18		clc		 CLC ;NO ERROR FLAG
+.2737	60		rts		 RTS ;RETURN
+.2738	48		pha		DLOOC PHA ;STACK BYTE
+.2739	a9 0d		lda #$0d	 LDA #$0D ;ASCII CR
+.273b	20 d2 ff	jsr $ffd2	 JSR CHROUT ;PRINT IT
+.273e	68		pla		 PLA ;GET BYTE
+.273f	20 d2 ff	jsr $ffd2	 JSR CHROUT ;PRINT IT
+.2742	20 a5 ff	jsr $ffa5	DLOOA JSR $FFA5 ;GET NEXT BYTE
+.2745	20 d2 ff	jsr $ffd2	 JSR CHROUT ;PRINT IT
+.2748	c9 0d		cmp #$0d	 CMP #$0D ;IS IT CR
+.274a	d0 f6		bne $2742	 BNE DLOOA ;GET NEXT BYTE
+.274c	20 ab ff	jsr $ffab	 JSR $FFAB ;UNTALK
+.274f	38		sec		 SEC ;SET ERROR FLAG
+.2750	60		rts		 RTS ;RETURN
+.2751	ee 77 1c	inc $1c77	NEWLIN INC LINECT
+.2754	d0 03		bne $2759	 BNE *+5
+.2756	ee 78 1c	inc $1c78	 INC LINECT+1
+.2759	ee df 1c	inc $1cdf	 INC LINEFL
+.275c	d0 03		bne $2761	 BNE *+5
+.275e	ee e0 1c	inc $1ce0	 INC LINEFL+1
+.2761	20 47 2d	jsr $2d47	 JSR CRLF
+.2764	ad 38 1c	lda $1c38	 LDA DEVICE
+.2767	29 04		and #$04	 AND #$04
+.2769	f0 03		beq $276e	 BEQ NEWEXT
+.276b	20 c0 28	jsr $28c0	 JSR NEXLIN
+.276e	60		rts		NEWEXT RTS
+.276f	a0 00		ldy #$00	INSTNG LDY #$00
+.2771	20 cf ff	jsr $ffcf	INSTN1 JSR CHRIN
+.2774	99 7b 1c	sta $1c7b,y	 STA BUF,Y
+.2777	c8		iny		 INY
+.2778	c9 0d		cmp #$0d	 CMP #$0D
+.277a	d0 f5		bne $2771	 BNE INSTN1
+.277c	88		dey		 DEY
+.277d	60		rts		 RTS
+.277e	a9 00		lda #$00	GETWRD LDA #$00
+.2780	8d 6e 1c	sta $1c6e	 STA ADRS
+.2783	8d 6f 1c	sta $1c6f	 STA ADRS+1
+.2786	20 6f 27	jsr $276f	 JSR INSTNG
+.2789	88		dey		 DEY
+.278a	30 15		bmi $27a1	 BMI INEND
+.278c	20 a2 27	jsr $27a2	 JSR GETBYT
+.278f	ad 70 1c	lda $1c70	 LDA TEMP
+.2792	8d 6e 1c	sta $1c6e	 STA ADRS
+.2795	88		dey		 DEY
+.2796	30 09		bmi $27a1	 BMI INEND
+.2798	20 a2 27	jsr $27a2	 JSR GETBYT
+.279b	ad 70 1c	lda $1c70	 LDA TEMP
+.279e	8d 6f 1c	sta $1c6f	 STA ADRS+1
+.27a1	60		rts		INEND RTS
+.27a2	b9 7b 1c	lda $1c7b,y	GETBYT LDA BUF,Y
+.27a5	20 bf 27	jsr $27bf	 JSR BINARY
+.27a8	8d 70 1c	sta $1c70	 STA TEMP
+.27ab	88		dey		 DEY
+.27ac	30 10		bmi $27be	 BMI INENX
+.27ae	b9 7b 1c	lda $1c7b,y	 LDA BUF,Y
+.27b1	20 bf 27	jsr $27bf	 JSR BINARY
+.27b4	0a		asl a		 ASL A
+.27b5	0a		asl a		 ASL A
+.27b6	0a		asl a		 ASL A
+.27b7	0a		asl a		 ASL A
+.27b8	0d 70 1c	ora $1c70	 ORA TEMP
+.27bb	8d 70 1c	sta $1c70	 STA TEMP
+.27be	60		rts		INENX RTS
+.27bf	38		sec		BINARY SEC
+.27c0	e9 30		sbc #$30	 SBC #'0'
+.27c2	90 0e		bcc $27d2	 BCC NOHEX
+.27c4	c9 0a		cmp #$0a	 CMP #$0A
+.27c6	90 0c		bcc $27d4	 BCC YSHEX
+.27c8	e9 07		sbc #$07	 SBC #$07
+.27ca	c9 10		cmp #$10	 CMP #$10
+.27cc	b0 04		bcs $27d2	 BCS NOHEX
+.27ce	c9 0a		cmp #$0a	 CMP #$0A
+.27d0	b0 02		bcs $27d4	 BCS YSHEX
+.27d2	38		sec		NOHEX SEC
+.27d3	60		rts		 RTS
+.27d4	18		clc		YSHEX CLC
+.27d5	60		rts		 RTS
+.27d6	20 cf ff	jsr $ffcf	CRYS   JSR CHRIN
+.27d9	c9 59		cmp #$59	       CMP #'Y'
+.27db	f0 11		beq $27ee	       BEQ CRYS1
+.27dd	c9 0d		cmp #$0d	       CMP #$0D
+.27df	f0 0d		beq $27ee	       BEQ CRYS1
+.27e1	d0 0d		bne $27f0	       BNE CRNO1
+.27e3	20 cf ff	jsr $ffcf	CRNO   JSR CHRIN
+.27e6	c9 4e		cmp #$4e	       CMP #'N'
+.27e8	f0 06		beq $27f0	       BEQ CRNO1
+.27ea	c9 0d		cmp #$0d	       CMP #$0D
+.27ec	f0 02		beq $27f0	       BEQ CRNO1
+.27ee	18		clc		CRYS1  CLC
+.27ef	60		rts		       RTS
+.27f0	38		sec		CRNO1  SEC
+.27f1	60		rts		       RTS
+.27f2	48		pha		PRBYTS PHA ;PUT A ON STACK
+.27f3	98		tya		 TYA ;PUT HIH BYTE IN A
+.27f4	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT MSB
+.27f7	68		pla		 PLA ;GET LSB
+.27f8	48		pha		PRBYT PHA ;PUT BYTE ON STACK
+.27f9	4a		lsr a		 LSR A ;4 RIGHT SHIFTS
+.27fa	4a		lsr a		 LSR A ;TO MOVE HIGH
+.27fb	4a		lsr a		 LSR A ;NIBBLE TO LOW
+.27fc	4a		lsr a		 LSR A ;NIB WITH HIGH 0'S
+.27fd	a8		tay		 TAY ;USE AS POINTER
+.27fe	b9 64 29	lda $2964,y	 LDA HEXA,Y ;GET ASCII
+.2801	20 64 28	jsr $2864	 JSR PCHAR ;PRINT
+.2804	68		pla		 PLA ;PULL BYTE OUT
+.2805	29 0f		and #$0f	 AND #$0F ;MASK HIGH NIBBLE
+.2807	a8		tay		 TAY ;USE AS POINTER
+.2808	b9 64 29	lda $2964,y	 LDA HEXA,Y ;GET ASCII
+.280b	4c 64 28	jmp $2864	 JMP PCHAR ;PRINT
+.280e	85 fb		sta $fb		STRPNT STA ZEROUR ;POINTER TO
+.2810	84 fc		sty $fc		 STY ZEROUR+1 ;MESSAGE
+.2812	a0 00		ldy #$00	 LDY #$00 ;OFFSET
+.2814	b1 fb		lda ($fb),y	SOUT LDA (ZEROUR),Y ;GET CHAR
+.2816	f0 06		beq $281e	 BEQ SEXIT ;IF ZERO EXIT
+.2818	20 64 28	jsr $2864	 JSR PCHAR ;PRINT
+.281b	c8		iny		 INY ;INC OFFSET
+.281c	d0 f6		bne $2814	 BNE SOUT ;LOOP
+.281e	60		rts		SEXIT RTS ;RETURN
+.281f	86 fb		stx $fb		PRTPAG STX ZEROUR ;LOW  BYTE NUM
+.2821	85 fc		sta $fc		 STA ZEROUR+1 ;HIGH BYTE NUM
+.2823	a2 03		ldx #$03	 LDX #$03 ;4 CHARS
+.2825	8e 72 1c	stx $1c72	 STX SAVX ;SAVE COUNT
+.2828	d0 09		bne $2833	 BNE PRTNU1 ;BRANCH
+.282a	86 fb		stx $fb		PRTNUM STX ZEROUR ;LOW  BYTE NUM
+.282c	85 fc		sta $fc		 STA ZEROUR+1 ;HIGH BYTE NUM
+.282e	a2 04		ldx #$04	 LDX #$04 ;5 CHARS
+.2830	8e 72 1c	stx $1c72	 STX SAVX ;SAVE COUNT
+.2833	ae 72 1c	ldx $1c72	PRTNU1 LDX SAVX
+.2836	a0 30		ldy #$30	 LDY #$30
+.2838	d0 01		bne $283b	 BNE PRTNU3
+.283a	c8		iny		PRTNU2 INY
+.283b	38		sec		PRTNU3 SEC
+.283c	a5 fb		lda $fb		 LDA ZEROUR
+.283e	fd 74 29	sbc $2974,x	 SBC CONST0,X
+.2841	85 fb		sta $fb		 STA ZEROUR
+.2843	a5 fc		lda $fc		 LDA ZEROUR+1
+.2845	fd 79 29	sbc $2979,x	 SBC CONST1,X
+.2848	85 fc		sta $fc		 STA ZEROUR+1
+.284a	b0 ee		bcs $283a	 BCS PRTNU2
+.284c	a5 fb		lda $fb		 LDA ZEROUR
+.284e	7d 74 29	adc $2974,x	 ADC CONST0,X
+.2851	85 fb		sta $fb		 STA ZEROUR
+.2853	a5 fc		lda $fc		 LDA ZEROUR+1
+.2855	7d 79 29	adc $2979,x	 ADC CONST1,X
+.2858	85 fc		sta $fc		 STA ZEROUR+1
+.285a	98		tya		 TYA
+.285b	20 64 28	jsr $2864	 JSR PCHAR
+.285e	ce 72 1c	dec $1c72	 DEC SAVX
+.2861	10 d0		bpl $2833	 BPL PRTNU1
+.2863	60		rts		 RTS
+.2864	48		pha		PCHAR PHA ;SAVE CHAR
+.2865	ad 38 1c	lda $1c38	 LDA DEVICE ;GET FILE FLAG
+.2868	29 08		and #$08	 AND #$08 ;CHECK FOR DISK
+.286a	f0 0d		beq $2879	 BEQ PRIN ;IF NONE BRANCH
+.286c	a2 08		ldx #$08	 LDX #$08 ;DISK FILE #1
+.286e	20 c9 ff	jsr $ffc9	 JSR CHKOUT ;FILE IS OUTPUT
+.2871	68		pla		 PLA ;GET CHAR
+.2872	48		pha		 PHA ;RESAVE CHAR
+.2873	20 d2 ff	jsr $ffd2	 JSR CHROUT ;OUTPUT TO DISK
+.2876	20 cc ff	jsr $ffcc	 JSR CLRCHN ;RESET OUTPUT
+.2879	ad 38 1c	lda $1c38	PRIN LDA DEVICE ;GET DEVICE FLAG
+.287c	29 04		and #$04	 AND #$04 ;CHECK FOR PRINTER
+.287e	f0 0d		beq $288d	 BEQ SCREN ;IF NOT BRANCH
+.2880	a2 04		ldx #$04	 LDX #$04 ;PRINT FILE #4
+.2882	20 c9 ff	jsr $ffc9	 JSR CHKOUT ;FILE IS OUTPUT
+.2885	68		pla		 PLA ;GET CHAR
+.2886	48		pha		 PHA ;RESAVE CHAR
+.2887	20 d2 ff	jsr $ffd2	 JSR CHROUT ;OUTPUT TO PRINTER
+.288a	20 cc ff	jsr $ffcc	 JSR CLRCHN ;RESET OUTPUT
+.288d	ad 38 1c	lda $1c38	SCREN LDA DEVICE ;GET DEVICE FLAG
+.2890	29 03		and #$03	 AND #$03 ;CHECK FOR SCREEN
+.2892	f0 05		beq $2899	 BEQ PEXIT ;IF NOT BRANCH
+.2894	68		pla		 PLA ;GET CHAR
+.2895	48		pha		 PHA ;RESAVE CHAR
+.2896	20 d2 ff	jsr $ffd2	 JSR CHROUT ;OUTPUT TO SCREEN
+.2899	68		pla		PEXIT PLA ;GET CHAR
+.289a	60		rts		 RTS ;RETURN
+.289b	20 ae 28	jsr $28ae	FINISH JSR CRLFPR ;PRINT CR
+.289e	ee 76 1c	inc $1c76	 INC LISTCT ;INC LINE COUNT
+.28a1	ad 76 1c	lda $1c76	 LDA LISTCT ;GET COUNT
+.28a4	c9 42		cmp #$42	 CMP #$42 ;66 LINES
+.28a6	d0 f3		bne $289b	 BNE FINISH ;IF NOT MORE
+.28a8	a9 00		lda #$00	 LDA #$00 ;ZERO BYTE
+.28aa	8d 76 1c	sta $1c76	 STA LISTCT ;RESET COUNT
+.28ad	60		rts		 RTS ;RETURN
+.28ae	a9 04		lda #$04	CRLFPR LDA #$04 ;DEVICE #4
+.28b0	8d 38 1c	sta $1c38	 STA DEVICE ;SET PRINTER
+.28b3	20 47 2d	jsr $2d47	 JSR CRLF ;CR
+.28b6	ad 39 1c	lda $1c39	 LDA OUTPUT ;GET DEVICE
+.28b9	8d 38 1c	sta $1c38	 STA DEVICE ;RESET DEVICE
+.28bc	60		rts		 RTS ;RETURN
+.28bd	20 ae 28	jsr $28ae	NEXPTR JSR CRLFPR ;PRINT CR
+.28c0	ee 76 1c	inc $1c76	NEXLIN INC LISTCT ;INC LINE COUNT
+.28c3	ad 76 1c	lda $1c76	 LDA LISTCT ;GET COUNT
+.28c6	c9 3c		cmp #$3c	 CMP #$3C ;48 LINES
+.28c8	d0 45		bne $290f	 BNE LINEOK ;IF NOT BRANCH
+.28ca	20 9b 28	jsr $289b	 JSR FINISH ;FINISH PAGE
+.28cd	ad 38 1c	lda $1c38	HEADER LDA DEVICE ;CHECK DEVICE
+.28d0	29 04		and #$04	 AND #$04 ;PRINTER?
+.28d2	f0 3b		beq $290f	 BEQ LINEOK ;IF NOT EXIT
+.28d4	20 bd 28	jsr $28bd	 JSR NEXPTR ;NEXT LINE
+.28d7	a9 04		lda #$04	 LDA #$04 ;DEVICE #4
+.28d9	8d 38 1c	sta $1c38	 STA DEVICE ;SET DEVICE
+.28dc	a9 7e		lda #$7e	 LDA #<XTITLE ;HEADER
+.28de	a0 29		ldy #$29	 LDY #>XTITLE ;
+.28e0	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.28e3	ae 74 1c	ldx $1c74	 LDX PAGECT
+.28e6	ad 75 1c	lda $1c75	 LDA PAGECT+1
+.28e9	20 1f 28	jsr $281f	 JSR PRTPAG
+.28ec	20 bd 28	jsr $28bd	 JSR NEXPTR
+.28ef	20 bd 28	jsr $28bd	 JSR NEXPTR
+.28f2	a9 04		lda #$04	 LDA #$04
+.28f4	8d 38 1c	sta $1c38	 STA DEVICE
+.28f7	a9 9a		lda #$9a	 LDA #<LTITLE
+.28f9	a0 29		ldy #$29	 LDY #>LTITLE
+.28fb	20 0e 28	jsr $280e	 JSR STRPNT
+.28fe	20 bd 28	jsr $28bd	 JSR NEXPTR
+.2901	ee 74 1c	inc $1c74	 INC PAGECT
+.2904	d0 03		bne $2909	 BNE PAGER1
+.2906	ee 75 1c	inc $1c75	 INC PAGECT+1
+.2909	20 bd 28	jsr $28bd	PAGER1 JSR NEXPTR
+.290c	20 bd 28	jsr $28bd	 JSR NEXPTR
+.290f	60		rts		LINEOK RTS
+.2910	20 ae 28	jsr $28ae	NEXPTS JSR CRLFPR ;PRINT CR
+.2913	ee 76 1c	inc $1c76	 INC LISTCT ;INC LINE COUNT
+.2916	ad 76 1c	lda $1c76	 LDA LISTCT ;GET COUNT
+.2919	c9 3c		cmp #$3c	 CMP #$3C ;48 LINES
+.291b	d0 1d		bne $293a	 BNE HEADOK ;IF NOT BRANCH
+.291d	20 9b 28	jsr $289b	 JSR FINISH ;FINISH PAGE
+.2920	20 10 29	jsr $2910	HEADES JSR NEXPTS ;NEXT LINE
+.2923	a9 b7		lda #$b7	 LDA #<XTITLS ;HEADER
+.2925	a0 29		ldy #$29	 LDY #>XTITLS ;
+.2927	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.292a	20 10 29	jsr $2910	 JSR NEXPTS
+.292d	20 10 29	jsr $2910	 JSR NEXPTS
+.2930	a9 c4		lda #$c4	 LDA #<LTITLS
+.2932	a0 29		ldy #$29	 LDY #>LTITLS
+.2934	20 0e 28	jsr $280e	 JSR STRPNT
+.2937	20 10 29	jsr $2910	 JSR NEXPTS
+.293a	60		rts		HEADOK RTS
+.293b	ad 76 1c	lda $1c76	HEADSY LDA LISTCT
+.293e	c9 35		cmp #$35	 CMP #$35
+.2940	b0 06		bcs $2948	 BCS HEADFX
+.2942	20 10 29	jsr $2910	 JSR NEXPTS
+.2945	4c 10 29	jmp $2910	 JMP NEXPTS
+.2948	4c 9b 28	jmp $289b	HEADFX JMP FINISH
+.294b	ad 38 1c	lda $1c38	SCROFF LDA DEVICE
+.294e	29 04		and #$04	 AND #$04
+.2950	f0 08		beq $295a	 BEQ SCRNO1
+.2952	ad 11 d0	lda $d011	 LDA VICREG
+.2955	29 ef		and #$ef	 AND #$EF
+.2957	8d 11 d0	sta $d011	 STA VICREG
+.295a	60		rts		SCRNO1 RTS
+.295b	ad 11 d0	lda $d011	SCRON LDA VICREG
+.295e	09 10		ora #$10	 ORA #$10
+.2960	8d 11 d0	sta $d011	 STA VICREG
+.2963	60		rts		 RTS
+>2964	30 31 32 33 34 35 36 37		HEXA .TEXT '0123456789ABCDEF'
+>296c	38 39 41 42 43 44 45 46
+>2974	01 0a 64 e8 10			CONST0 .BYTE $01,$0A,$64,$E8,$10
+>2979	00 00 00 03 27			CONST1 .BYTE $00,$00,$00,$03,$27
+>297e	44 49 53 41 53 53 45 4d		XTITLE .TEXT 'DISASSEMBLER128.......PAGE '
+>2986	42 4c 45 52 31 32 38 2e 2e 2e 2e 2e 2e 2e 50 41
+>2996	47 45 20
+>2999	00				 .BYTE $00
+>299a	4c 49 4e 45 23 20 4c 4f		LTITLE .TEXT 'LINE# LOC   CODE        LINE'
+>29a2	43 20 20 20 43 4f 44 45 20 20 20 20 20 20 20 20
+>29b2	4c 49 4e 45
+>29b6	00				 .BYTE $00
+>29b7	53 59 4d 42 4f 4c 20 54		XTITLS .TEXT 'SYMBOL TABLE',0
+>29bf	41 42 4c 45 00
+>29c4	53 59 4d 42 4f 4c 20 56		LTITLS .TEXT 'SYMBOL VALUE',0
+>29cc	41 4c 55 45 00
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: mode.asm
+
+.29d1	20 ff 30	jsr $30ff	DSLINE JSR DATAOP ;CHECK FOR DATA
+.29d4	30 3d		bmi $2a13	       BMI BYTT   ;N=1 THEN FOUND
+.29d6	ad cc 43	lda $43cc	       LDA BITFLG ;CHECK BIT FLAG
+.29d9	f0 0d		beq $29e8	       BEQ DISL   ;IF ZERO NO BIT
+.29db	20 80 2d	jsr $2d80	       JSR GETSL  ;GET BYTE
+.29de	c9 24		cmp #$24	       CMP #$24   ;ZEROPAGE BIT
+.29e0	f0 34		beq $2a16	       BEQ BYZBIT ;
+.29e2	c9 2c		cmp #$2c	       CMP #$2C   ;ZEROPAGE BIT
+.29e4	f0 55		beq $2a3b	       BEQ BYABIT ;
+.29e6	d0 00		bne $29e8	       BNE DISL   ;
+=10728					DISL = *
+.29e8	20 80 2d	jsr $2d80	       JSR GETSL  ;GET BYTE
+.29eb	ae 31 1c	ldx $1c31	       LDX PASS   ;GET PASS COUNT
+.29ee	ec 34 1c	cpx $1c34	       CPX CPASS  ;LAST
+.29f1	f0 06		beq $29f9	       BEQ DISL1  ;IF LAST BRANCH
+.29f3	20 c7 33	jsr $33c7	       JSR OPERN1 ;IF LAST BRANCH
+.29f6	4c 13 2a	jmp $2a13	       JMP BYTT   ;NEXT INSTRUCTION
+.29f9	20 ba 33	jsr $33ba	DISL1  JSR PRTASS ;PRINT LINE DATA
+.29fc	20 de 2c	jsr $2cde	       JSR PRAD   ;PRINT ADDRESS
+.29ff	20 59 2d	jsr $2d59	       JSR SPACE  ;SPACE OVER
+.2a02	20 80 2d	jsr $2d80	       JSR GETSL  ;GET BYTE
+.2a05	48		pha		       PHA        ;STORE
+.2a06	20 9b 33	jsr $339b	       JSR MNEMON ;PRINT MNEMONIC
+.2a09	20 59 2d	jsr $2d59	       JSR SPACE  ;SPACE OVER
+.2a0c	68		pla		       PLA        ;GET BYTE
+.2a0d	20 cf 33	jsr $33cf	       JSR OPERND ;PRINT OPERAND
+.2a10	20 51 27	jsr $2751	FINAL  JSR NEWLIN ;START NEW LINE
+.2a13	4c 5e 2d	jmp $2d5e	BYTT   JMP NEXTSL ;NEXT INSTRUCTION
+=10774					BYZBIT = *
+.2a16	ad cc 43	lda $43cc	       LDA BITFLG
+.2a19	29 02		and #$02	       AND #$02
+.2a1b	f0 cb		beq $29e8	       BEQ DISL
+.2a1d	20 77 2d	jsr $2d77	      JSR INCSL  ;INC TO OPERAND
+.2a20	20 80 2d	jsr $2d80	      JSR GETSL  ;GET OPERAND
+.2a23	48		pha		      PHA
+.2a24	20 98 2d	jsr $2d98	      JSR DECSL
+.2a27	68		pla		      PLA
+.2a28	c9 10		cmp #$10	      CMP #$10   ;BPL SKIP
+.2a2a	f0 40		beq $2a6c	      BEQ B0000
+.2a2c	c9 18		cmp #$18	      CMP #$18   ;CLC SKIP
+.2a2e	f0 3c		beq $2a6c	      BEQ B0000
+.2a30	c9 30		cmp #$30	      CMP #$30   ;BMI
+.2a32	f0 38		beq $2a6c	      BEQ B0000
+.2a34	c9 38		cmp #$38	      CMP #$38   ;SEC
+.2a36	f0 34		beq $2a6c	      BEQ B0000
+.2a38	4c e8 29	jmp $29e8	      JMP DISL
+=10811					BYABIT = *
+.2a3b	ad cc 43	lda $43cc	       LDA BITFLG
+.2a3e	29 01		and #$01	       AND #$01
+.2a40	f0 a6		beq $29e8	       BEQ DISL
+.2a42	20 77 2d	jsr $2d77	      JSR INCSL  ;INC TO OPERAND
+.2a45	20 80 2d	jsr $2d80	      JSR GETSL  ;GET OPERAND
+.2a48	48		pha		      PHA
+.2a49	20 98 2d	jsr $2d98	      JSR DECSL
+.2a4c	68		pla		      PLA
+.2a4d	c9 a1		cmp #$a1	      CMP #$A1   ;LDY A IMMEDIATE SKIP
+.2a4f	f0 1b		beq $2a6c	      BEQ B0000
+.2a51	c9 a2		cmp #$a2	      CMP #$A2   ;LDA A IMMEDIATE SKIP
+.2a53	f0 17		beq $2a6c	      BEQ B0000
+.2a55	c9 a9		cmp #$a9	      CMP #$A9   ;LDX A IMMEDIATE SKIP
+.2a57	f0 13		beq $2a6c	      BEQ B0000
+.2a59	c9 65		cmp #$65	      CMP #$65   ;ADC ZP
+.2a5b	f0 0f		beq $2a6c	      BEQ B0000
+.2a5d	c9 85		cmp #$85	      CMP #$85   ;STA ZP
+.2a5f	f0 0b		beq $2a6c	      BEQ B0000
+.2a61	c9 b1		cmp #$b1	      CMP #$B1   ;LDA (ZP),Y
+.2a63	f0 07		beq $2a6c	      BEQ B0000
+.2a65	c9 e6		cmp #$e6	      CMP #$E6   ;INC
+.2a67	f0 03		beq $2a6c	      BEQ B0000
+.2a69	4c e8 29	jmp $29e8	      JMP DISL
+=10860					B0000 = *
+.2a6c	ad 31 1c	lda $1c31	       LDA PASS  ;GET PASS COUNT
+.2a6f	cd 34 1c	cmp $1c34	       CMP CPASS ;LAST
+.2a72	d0 9f		bne $2a13	       BNE BYTT  ;IF NOT NEXT BYTE
+.2a74	20 b5 2c	jsr $2cb5	       JSR COMENT    ;COMENT LINE
+.2a77	20 5b 2e	jsr $2e5b	       JSR PRTDAT    ;PRINT LINE DATA
+.2a7a	20 e8 2d	jsr $2de8	       JSR PRTONE    ;ONE BYTE
+.2a7d	20 de 2c	jsr $2cde	       JSR PRAD      ;PRINT ADDRESS
+.2a80	20 59 2d	jsr $2d59	       JSR SPACE     ;SPACE OVER
+.2a83	a9 b1		lda #$b1	       LDA #<MSGBIT  ;.BYTE $
+.2a85	a0 2d		ldy #$2d	       LDY #>MSGBIT  ;
+.2a87	20 0e 28	jsr $280e	       JSR STRPNT    ;PRINT IT
+.2a8a	20 80 2d	jsr $2d80	       JSR GETSL     ;GET BYTE
+.2a8d	20 f8 27	jsr $27f8	       JSR PRBYT     ;PRINT BYTE
+.2a90	a9 b9		lda #$b9	       LDA #<MSGBZP  ;BIT COMMENT
+.2a92	a0 2d		ldy #$2d	       LDY #>MSGBZP  ;
+.2a94	20 0e 28	jsr $280e	       JSR STRPNT    ;PRINT IT
+.2a97	20 51 27	jsr $2751	       JSR NEWLIN   ;PRINT BYTE
+.2a9a	20 bb 2c	jsr $2cbb	       JSR COMET    ;COMENT LINE
+.2a9d	4c 10 2a	jmp $2a10	       JMP FINAL    ;CR AND NEXT BYTE
+.2aa0	ea		nop		ONEBIT NOP
+.2aa1	20 77 2d	jsr $2d77	ONEBYT JSR INCSL ;INC TO BYTE
+.2aa4	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2aa7	8d 64 1c	sta $1c64	 STA WORKED ;STORE OPERAND
+.2aaa	a9 00		lda #$00	 LDA #$00 ;ZERO BYTE
+.2aac	8d 65 1c	sta $1c65	 STA WORKED+1 ;ZERO HIGH BYTE
+.2aaf	ad 31 1c	lda $1c31	 LDA PASS ;GET PASS COUNT
+.2ab2	cd 32 1c	cmp $1c32	 CMP IPASS       ;INTERNAL
+.2ab5	f0 54		beq $2b0b	 BEQ OPCPUT ;TABLE OPERAND
+.2ab7	cd 33 1c	cmp $1c33	 CMP EPASS       ;EXTERNAL
+.2aba	f0 52		beq $2b0e	 BEQ OPCSYM ;EXTERNAL EQUATE
+.2abc	20 b2 37	jsr $37b2	 JSR SYMOP ;CHECK FOR SYMBOL
+.2abf	b0 50		bcs $2b11	 BCS TWOB ;SYMBOL FOUND
+.2ac1	20 92 2e	jsr $2e92	 JSR RANGE ;IS IT INTERNAL
+.2ac4	90 06		bcc $2acc	 BCC ONEBY ;GENERATE LABEL
+.2ac6	20 24 2d	jsr $2d24	 JSR DOLLAR ;EXTERNAL
+.2ac9	4c cf 2a	jmp $2acf	 JMP ONEBX ;PRINT ADDRESS
+.2acc	20 d4 2c	jsr $2cd4	ONEBY JSR PRLA ;PRINT XX
+.2acf	ad 64 1c	lda $1c64	ONEBX LDA WORKED ;GET OPERAND
+.2ad2	4c f8 27	jmp $27f8	 JMP PRBYT ;PRINT BYTE
+.2ad5	ea		nop		TWOBIT NOP
+.2ad6	20 77 2d	jsr $2d77	TWOBYT JSR INCSL ;INC TO BYTE
+.2ad9	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2adc	8d 64 1c	sta $1c64	 STA WORKED ;STORE LOW BYTE
+.2adf	20 77 2d	jsr $2d77	 JSR INCSL ;INC TO BYTE
+.2ae2	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2ae5	8d 65 1c	sta $1c65	 STA WORKED+1 ;STORE HIGH BYTE
+.2ae8	ad 31 1c	lda $1c31	 LDA PASS ;GET PASS COUNT
+.2aeb	cd 32 1c	cmp $1c32	 CMP IPASS       ;INTERNAL
+.2aee	f0 1b		beq $2b0b	 BEQ OPCPUT ;TABLE OPERNAD
+.2af0	cd 33 1c	cmp $1c33	 CMP EPASS       ;EXTERNAL
+.2af3	f0 19		beq $2b0e	 BEQ OPCSYM ;EXTERNAL EQUATE
+.2af5	20 b2 37	jsr $37b2	 JSR SYMOP  ;CHECK SYMBOL
+.2af8	b0 17		bcs $2b11	 BCS TWOB   ;C=1 FOUND ONE
+.2afa	20 92 2e	jsr $2e92	 JSR RANGE  ;IS IT INTERNAL
+.2afd	90 06		bcc $2b05	 BCC TWOBY  ;GERNERATE LABEL
+.2aff	20 24 2d	jsr $2d24	 JSR DOLLAR ;EXTERNAL
+.2b02	4c 08 2b	jmp $2b08	 JMP TWOBX  ;
+=11013					TWOBY =*
+.2b05	20 d4 2c	jsr $2cd4	 JSR PRLA   ;PRINT XX
+=11016					TWOBX = *
+.2b08	4c 16 2d	jmp $2d16	 JMP PWORKD ;PRINT ADDRESS
+=11019					OPCPUT = *
+.2b0b	4c 09 2f	jmp $2f09	 JMP PUTI   ;PUT IN TABLE
+=11022					OPCSYM = *
+.2b0e	4c b2 37	jmp $37b2	 JMP SYMOP  ;CHECK EXT EQUATE
+=11025					TWOB = *
+.2b11	60		rts		 RTS        ;RETURN
+.2b12	ee 79 1c	inc $1c79	ILLEGL INC ERRCT   ;INC ERROR COUNT
+.2b15	d0 03		bne $2b1a	       BNE *+5     ;SKIP NEXT LINE
+.2b17	ee 7a 1c	inc $1c7a	       INC ERRCT+1 ;INC ERROR COUNT
+.2b1a	a0 33		ldy #$33	       LDY #>MBYTE ;.BYTE
+.2b1c	a9 82		lda #$82	       LDA #<MBYTE ;
+.2b1e	20 0e 28	jsr $280e	       JSR STRPNT  ;PRINT STRING
+.2b21	20 24 2d	jsr $2d24	       JSR DOLLAR  ;PRINT $
+.2b24	20 80 2d	jsr $2d80	       JSR GETSL   ;GET ILLEGAL BYTE
+.2b27	48		pha		       PHA         ;PUT BYTE ON STACK
+.2b28	20 f8 27	jsr $27f8	       JSR PRBYT   ;PRINT IT
+.2b2b	20 59 2d	jsr $2d59	       JSR SPACE   ;SPACE OVER
+.2b2e	68		pla		       PLA         ;POP BYTE OFF STACK
+.2b2f	20 8a 32	jsr $328a	       JSR CASCII  ;IS IT PRINTABLE ASCII
+.2b32	b0 18		bcs $2b4c	       BCS ISKIP   ;IF NOT EXIT
+.2b34	48		pha		       PHA         ;STACK IT
+.2b35	20 59 2d	jsr $2d59	       JSR SPACE   ;SPACE OVER
+.2b38	20 1f 2d	jsr $2d1f	       JSR SEMIC   ;COMMENT
+.2b3b	a9 27		lda #$27	       LDA #"'"    ;QUOTE
+.2b3d	20 64 28	jsr $2864	       JSR PCHAR   ;PRINT IT
+.2b40	68		pla		       PLA         ;POP IT
+.2b41	20 64 28	jsr $2864	       JSR PCHAR   ;PRINT IT
+.2b44	a9 27		lda #$27	       LDA #"'"    ;QUOTE
+.2b46	20 64 28	jsr $2864	       JSR PCHAR   ;PRINT IT
+.2b49	20 59 2d	jsr $2d59	       JSR SPACE   ;SPACE OVER
+=11084					ISKIP = *
+.2b4c	a0 2d		ldy #$2d	       LDY #>ILLMSG
+.2b4e	a9 d4		lda #$d4	       LDA #<ILLMSG
+.2b50	4c 0e 28	jmp $280e	       JMP STRPNT
+.2b53	a9 41		lda #$41	ACC LDA #'A'     ;ASCII A
+.2b55	4c 64 28	jmp $2864	 JMP PCHAR ;PRINT IT
+.2b58	20 77 2d	jsr $2d77	IMMEDT JSR INCSL ;INC TO DATA BYTE
+.2b5b	ae 31 1c	ldx $1c31	 LDX PASS ;GET PASS
+.2b5e	ec 34 1c	cpx $1c34	 CPX CPASS ;LAST PASS
+.2b61	d0 2a		bne $2b8d	 BNE IMEXIT ;EXIT
+.2b63	a9 23		lda #$23	 LDA #'#'        ;ASCII #
+.2b65	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2b68	20 24 2d	jsr $2d24	 JSR DOLLAR ;PRINT $
+.2b6b	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2b6e	48		pha		 PHA ;STACK IT
+.2b6f	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT IT
+.2b72	68		pla		 PLA ;POP IT
+.2b73	20 8a 32	jsr $328a	 JSR CASCII ;PRINTABLE ASCII
+.2b76	b0 15		bcs $2b8d	 BCS IMEXIT ;IF NOT EXIT
+.2b78	48		pha		 PHA ;STACK IT
+.2b79	20 4c 2d	jsr $2d4c	 JSR SPAC6 ;SPACE OVER
+.2b7c	20 1f 2d	jsr $2d1f	 JSR SEMIC ;COMMENT
+.2b7f	a9 27		lda #$27	 LDA #"'"        ;QUOTE
+.2b81	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2b84	68		pla		 PLA ;POP IT
+.2b85	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2b88	a9 27		lda #$27	 LDA #"'"        ;QUOTE
+.2b8a	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2b8d	60		rts		IMEXIT RTS ;EXIT
+.2b8e	ea		nop		ZERBIT NOP
+.2b8f	4c a1 2a	jmp $2aa1	ZEROPG JMP ONEBYT ;PRINT ONE BYTE
+.2b92	20 a1 2a	jsr $2aa1	ZEROX JSR ONEBYT ;PRINT ONE BYTE
+.2b95	4c 33 2d	jmp $2d33	 JMP XINDEX ;PRINT ,X
+.2b98	20 a1 2a	jsr $2aa1	ZEROY JSR ONEBYT ;PRINT ONE BYTE
+.2b9b	4c 3d 2d	jmp $2d3d	 JMP YINDEX ;PRINT ,Y
+.2b9e	ea		nop		ABSBIT NOP
+.2b9f	20 d6 2a	jsr $2ad6	ABSLUT JSR TWOBYT ;PRINT TWO BYTE
+.2ba2	20 98 2d	jsr $2d98	 JSR DECSL ;DEC TO SECOND
+.2ba5	20 98 2d	jsr $2d98	 JSR DECSL ;DEC TO OPCODE
+.2ba8	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2bab	48		pha		 PHA
+.2bac	20 77 2d	jsr $2d77	 JSR INCSL
+.2baf	20 77 2d	jsr $2d77	 JSR INCSL
+.2bb2	68		pla		 PLA
+.2bb3	c9 4c		cmp #$4c	 CMP #$4C ;IS IT JMP
+.2bb5	d0 0c		bne $2bc3	 BNE ABSEXT ;IF NOT EXIT
+.2bb7	20 51 27	jsr $2751	 JSR NEWLIN ;NEXT LINE
+.2bba	20 77 2d	jsr $2d77	 JSR INCSL
+.2bbd	20 bb 2c	jsr $2cbb	 JSR COMET ;COMMENT LINE
+.2bc0	20 98 2d	jsr $2d98	 JSR DECSL
+.2bc3	60		rts		ABSEXT RTS ;RETURN
+.2bc4	20 d6 2a	jsr $2ad6	ABSX JSR TWOBYT ;PRINT TWO BYTE
+.2bc7	4c 33 2d	jmp $2d33	 JMP XINDEX ;PRINT ,X
+.2bca	20 d6 2a	jsr $2ad6	ABSY JSR TWOBYT ;PRINT TWO BYTE
+.2bcd	4c 3d 2d	jmp $2d3d	 JMP YINDEX ;PRINT ,Y
+.2bd0	20 80 2d	jsr $2d80	IMPLID JSR GETSL ;GET BYTE
+.2bd3	f0 09		beq $2bde	 BEQ IMPLI1 ;BRK
+.2bd5	c9 60		cmp #$60	 CMP #$60 ;CHECK CODE
+.2bd7	f0 05		beq $2bde	 BEQ IMPLI1 ;RTS
+.2bd9	c9 40		cmp #$40	 CMP #$40 ;CHECK CODE
+.2bdb	f0 01		beq $2bde	 BEQ IMPLI1 ;RTI
+.2bdd	60		rts		IMPONE RTS ;RETURN
+.2bde	20 51 27	jsr $2751	IMPLI1 JSR NEWLIN ;PRINT NEW LINE
+.2be1	20 77 2d	jsr $2d77	 JSR INCSL
+.2be4	20 bb 2c	jsr $2cbb	 JSR COMET ;COMMENT LINE
+.2be7	4c 98 2d	jmp $2d98	 JMP DECSL
+.2bea	20 29 2d	jsr $2d29	INDRCT JSR LPAREN ;PRINT (
+.2bed	20 d6 2a	jsr $2ad6	 JSR TWOBYT ;PRINT TWO BYTE
+.2bf0	20 2e 2d	jsr $2d2e	 JSR RPAREN ;PRINT )
+.2bf3	20 51 27	jsr $2751	 JSR NEWLIN ;NEXT LINE
+.2bf6	20 77 2d	jsr $2d77	 JSR INCSL
+.2bf9	20 bb 2c	jsr $2cbb	 JSR COMET ;COMMENT LINE
+.2bfc	4c 98 2d	jmp $2d98	 JMP DECSL
+.2bff	20 29 2d	jsr $2d29	INDX JSR LPAREN ;PRINT (
+.2c02	20 92 2b	jsr $2b92	 JSR ZEROX ;PRINT $HH,X
+.2c05	4c 2e 2d	jmp $2d2e	 JMP RPAREN ;PRINT )
+.2c08	20 29 2d	jsr $2d29	INDY JSR LPAREN ;PRINT (
+.2c0b	20 a1 2a	jsr $2aa1	 JSR ONEBYT ;PRINT ONE BYTE
+.2c0e	20 2e 2d	jsr $2d2e	 JSR RPAREN ;PRINT )
+.2c11	4c 3d 2d	jmp $2d3d	 JMP YINDEX ;PRINT ,Y
+.2c14	20 77 2d	jsr $2d77	RELATV JSR INCSL    ;INC BYTE POINTER
+.2c17	ad 31 1c	lda $1c31	       LDA PASS     ;GET PASS COUNT
+.2c1a	cd 33 1c	cmp $1c33	       CMP EPASS    ;EXTERNAL
+.2c1d	f0 44		beq $2c63	       BEQ RELSYM   ;EXIT ON EXTERNAL
+.2c1f	ad 41 1c	lda $1c41	       LDA SELECT   ;GET LOW POINTER
+.2c22	8d 64 1c	sta $1c64	       STA WORKED   ;STORE TEMP
+.2c25	ad 42 1c	lda $1c42	       LDA SELECT+1 ;GET HIGH POINTER
+.2c28	8d 65 1c	sta $1c65	       STA WORKED+1 ;STORE TEMP
+.2c2b	ee 64 1c	inc $1c64	       INC WORKED   ;ADD 1 TO ADDRESS
+.2c2e	d0 03		bne $2c33	       BNE *+5      ;ZERO MEANS CARRY
+.2c30	ee 65 1c	inc $1c65	       INC WORKED+1 ;INC HIGH ADDRESS
+.2c33	20 80 2d	jsr $2d80	       JSR GETSL    ;GET BYTE BRANCH OFFSET
+.2c36	c9 00		cmp #$00	       CMP #$00     ;IS IT ZERO
+.2c38	10 03		bpl $2c3d	       BPL FORWRD   ;IF SO BRANCH
+.2c3a	ce 65 1c	dec $1c65	       DEC WORKED+1 ;DEC HIGH POINTER
+.2c3d	18		clc		FORWRD CLC          ;CLEAR CARRY FLAG
+.2c3e	6d 64 1c	adc $1c64	       ADC WORKED   ;ADD IN OPERAND
+.2c41	90 03		bcc $2c46	       BCC RELND    ;TO SELECT ADDRES
+.2c43	ee 65 1c	inc $1c65	       INC WORKED+1 ;AND NOW POINTS
+.2c46	8d 64 1c	sta $1c64	RELND  STA WORKED   ;TARGET ADDRESS
+.2c49	ad 31 1c	lda $1c31	       LDA PASS     ;GET PASS COUNT
+.2c4c	cd 32 1c	cmp $1c32	       CMP IPASS    ;INTERNAL
+.2c4f	f0 0f		beq $2c60	       BEQ RELPUT   ;ADDRESS TABLE
+.2c51	20 b2 37	jsr $37b2	       JSR SYMOP    ;CHECK FOR SYMBOL
+.2c54	b0 0d		bcs $2c63	       BCS RELSYM   ;C=1 SYMBOL
+.2c56	ad 37 1c	lda $1c37	       LDA ROPT     ;CHECK OPTION
+.2c59	c9 01		cmp #$01	       CMP #$01     ;REL TO * ?
+.2c5b	f0 07		beq $2c64	       BEQ RELPC    ;IF SO DO IT
+.2c5d	4c 13 2d	jmp $2d13	       JMP PWORK    ;PRINT ADDRESS
+=11360					RELPUT = *
+.2c60	4c 09 2f	jmp $2f09	       JMP PUTI     ;PUT IN TABLE
+.2c63	60		rts		RELSYM RTS          ;RETURN
+.2c64	20 80 2d	jsr $2d80	RELPC JSR GETSL ;GET BRANCH DATA
+.2c67	48		pha		 PHA ;SAVE ON STACK
+.2c68	30 07		bmi $2c71	 BMI RELNEG ;BACKWARD ?
+.2c6a	a9 c7		lda #$c7	 LDA #<POSREL
+.2c6c	a0 2d		ldy #$2d	 LDY #>POSREL
+.2c6e	4c 75 2c	jmp $2c75	 JMP RELPM
+.2c71	a9 cb		lda #$cb	RELNEG LDA #<NEGREL
+.2c73	a0 2d		ldy #$2d	 LDY #>NEGREL
+.2c75	20 0e 28	jsr $280e	RELPM JSR STRPNT
+.2c78	68		pla		 PLA ;GET BRANCH DATA
+.2c79	18		clc		 CLC ;CLEAR CARRY
+.2c7a	69 02		adc #$02	 ADC #$02 ;ADD 2 FOR BRANCH
+.2c7c	10 05		bpl $2c83	 BPL RELP ;FORWARD ?
+.2c7e	18		clc		 CLC ;CLEAR CARRY
+.2c7f	49 ff		eor #$ff	 EOR #$FF ;COMPLMENT
+.2c81	69 01		adc #$01	 ADC #$01 ;ADD 1 FOR 2'S
+.2c83	20 f8 27	jsr $27f8	RELP JSR PRBYT ;PRINT BRANCH
+.2c86	20 4c 2d	jsr $2d4c	 JSR SPAC6 ;SPACE
+.2c89	20 1f 2d	jsr $2d1f	 JSR SEMIC ;COMMENT CHAR
+.2c8c	4c 13 2d	jmp $2d13	 JMP PWORK ;PRINT ADDRESS
+.2c8f	20 7f 2e	jsr $2e7f	ORGIN JSR PRTOTH ;PRINT LINE DATA
+.2c92	a9 2a		lda #$2a	 LDA #'*'        ;PC
+.2c94	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2c97	a9 3d		lda #$3d	 LDA #'='        ;EQUALS
+.2c99	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.2c9c	20 24 2d	jsr $2d24	 JSR DOLLAR ;ASCII $
+.2c9f	20 0a 2d	jsr $2d0a	 JSR PSELEC ;PRINT ADDRESS
+.2ca2	4c 51 27	jmp $2751	 JMP NEWLIN ;START NEWLINE
+.2ca5	20 b5 2c	jsr $2cb5	EFILE JSR COMENT ;COMMENT LINE
+.2ca8	20 7f 2e	jsr $2e7f	 JSR PRTOTH ;PRINT LINE DATA
+.2cab	a9 cf		lda #$cf	 LDA #<MSGEND ;END MESSAGE
+.2cad	a0 2d		ldy #$2d	 LDY #>MSGEND
+.2caf	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.2cb2	4c 51 27	jmp $2751	 JMP NEWLIN ;NEW LINE
+.2cb5	20 bb 2c	jsr $2cbb	COMENT JSR COMET ;PRINT COMMENT
+.2cb8	4c 51 27	jmp $2751	 JMP NEWLIN ;NEXT LINE
+.2cbb	20 7f 2e	jsr $2e7f	COMET JSR PRTOTH ;PRINT LINE DATA
+.2cbe	20 1f 2d	jsr $2d1f	 JSR SEMIC ;PRINT COMMENT
+.2cc1	ad 3b 1c	lda $1c3b	 LDA FOROPT
+.2cc4	d0 03		bne $2cc9	 BNE CSHORT
+.2cc6	a0 20		ldy #$20	 LDY #$20 ;COUNTER
+>2cc8	2c				 .BYTE $2C
+.2cc9	a0 10		ldy #$10	CSHORT LDY #$10
+.2ccb	a9 2a		lda #$2a	COMPT LDA #'*'    ;STAR
+.2ccd	20 64 28	jsr $2864	 JSR PCHAR ;PRINT CHAR
+.2cd0	88		dey		 DEY ;DEC COUNTER
+.2cd1	d0 f8		bne $2ccb	 BNE COMPT ;20 OR 10 STARS
+.2cd3	60		rts		 RTS ;RETURN
+.2cd4	a9 58		lda #$58	PRLA LDA #'X' ;XX LABEL
+.2cd6	20 64 28	jsr $2864	 JSR PCHAR ;
+.2cd9	a9 58		lda #$58	 LDA #'X'     ;
+.2cdb	4c 64 28	jmp $2864	 JMP PCHAR ;
+.2cde	20 9e 37	jsr $379e	PRAD JSR SYM ;CHECK FOR SYMBOLIC
+.2ce1	b0 1f		bcs $2d02	 BCS NPRAD1 ;C=1 SYMBOLIC LABEL
+.2ce3	ad 36 1c	lda $1c36	 LDA XOPT ;CHECK GENERATION
+.2ce6	f0 10		beq $2cf8	 BEQ P1 ;NO LABELS
+.2ce8	20 68 2f	jsr $2f68	 JSR INTCHA ;IS ADDRESS IN TAB
+.2ceb	b0 0b		bcs $2cf8	 BCS P1 ;C=1 YES
+.2ced	ad 3b 1c	lda $1c3b	 LDA FOROPT ;CHECK FORMAT
+.2cf0	f0 03		beq $2cf5	 BEQ POVER  ;STD FORMAT
+.2cf2	4c 59 2d	jmp $2d59	 JMP SPACE  ;ONE SPACE
+.2cf5	4c 4c 2d	jmp $2d4c	POVER JMP SPAC6 ;SPACE OVER
+.2cf8	20 d4 2c	jsr $2cd4	P1 JSR PRLA ;PRINT XX
+.2cfb	20 0a 2d	jsr $2d0a	 JSR PSELEC ;PRINT ADDRESS
+.2cfe	ea		nop		 NOP
+.2cff	ea		nop		 NOP
+.2d00	ea		nop		 NOP
+.2d01	60		rts		NPRAD RTS ;RETURN
+.2d02	ad 3b 1c	lda $1c3b	NPRAD1 LDA FOROPT
+.2d05	d0 fa		bne $2d01	 BNE NPRAD
+.2d07	4c 4f 38	jmp $384f	 JMP FIXSYM
+.2d0a	ad 41 1c	lda $1c41	PSELEC LDA SELECT ;LOW BYTE
+.2d0d	ac 42 1c	ldy $1c42	 LDY SELECT+1 ;HIGH BYTE
+.2d10	4c f2 27	jmp $27f2	 JMP PRBYTS ;PRINT THEM
+.2d13	20 d4 2c	jsr $2cd4	PWORK JSR PRLA ;PRINT XX
+.2d16	ad 64 1c	lda $1c64	PWORKD LDA WORKED ;LOW BYTE
+.2d19	ac 65 1c	ldy $1c65	 LDY WORKED+1 ;HIGH BYTE
+.2d1c	4c f2 27	jmp $27f2	 JMP PRBYTS ;PRINT THEM
+.2d1f	a9 3b		lda #$3b	SEMIC LDA #';'
+.2d21	4c 64 28	jmp $2864	 JMP PCHAR
+.2d24	a9 24		lda #$24	DOLLAR LDA #'$'
+.2d26	4c 64 28	jmp $2864	 JMP PCHAR
+.2d29	a9 28		lda #$28	LPAREN LDA #'('
+.2d2b	4c 64 28	jmp $2864	 JMP PCHAR
+.2d2e	a9 29		lda #$29	RPAREN LDA #')'
+.2d30	4c 64 28	jmp $2864	 JMP PCHAR
+.2d33	a9 2c		lda #$2c	XINDEX LDA #','
+.2d35	20 64 28	jsr $2864	 JSR PCHAR
+.2d38	a9 58		lda #$58	 LDA #'X'
+.2d3a	4c 64 28	jmp $2864	 JMP PCHAR
+.2d3d	a9 2c		lda #$2c	YINDEX LDA #','
+.2d3f	20 64 28	jsr $2864	 JSR PCHAR
+.2d42	a9 59		lda #$59	 LDA #'Y'
+.2d44	4c 64 28	jmp $2864	 JMP PCHAR
+.2d47	a9 0d		lda #$0d	CRLF LDA #$0D ;ASCII CR
+.2d49	4c 64 28	jmp $2864	 JMP PCHAR ;PRINT
+.2d4c	a9 05		lda #$05	SPAC6 LDA #$05
+.2d4e	8d 70 1c	sta $1c70	SPACM STA TEMP
+.2d51	20 59 2d	jsr $2d59	SPAC JSR SPACE
+.2d54	ce 70 1c	dec $1c70	 DEC TEMP
+.2d57	d0 f8		bne $2d51	 BNE SPAC
+.2d59	a9 20		lda #$20	SPACE LDA #$20 ;ASCII SPACE
+.2d5b	4c 64 28	jmp $2864	 JMP PCHAR ;PRINT
+.2d5e	ad 42 1c	lda $1c42	NEXTSL LDA SELECT+1
+.2d61	cd 40 1c	cmp $1c40	 CMP EA+1
+.2d64	90 0a		bcc $2d70	 BCC SLOK
+.2d66	d0 0d		bne $2d75	 BNE NOINC
+.2d68	ad 41 1c	lda $1c41	 LDA SELECT
+.2d6b	cd 3f 1c	cmp $1c3f	 CMP EA
+.2d6e	b0 05		bcs $2d75	 BCS NOINC
+.2d70	20 77 2d	jsr $2d77	SLOK JSR INCSL
+.2d73	18		clc		 CLC
+.2d74	60		rts		 RTS
+.2d75	38		sec		NOINC SEC
+.2d76	60		rts		 RTS
+.2d77	ee 41 1c	inc $1c41	INCSL INC SELECT
+.2d7a	d0 03		bne $2d7f	 BNE *+5
+.2d7c	ee 42 1c	inc $1c42	 INC SELECT+1
+.2d7f	60		rts		 RTS
+.2d80	18		clc		GETSL CLC
+.2d81	ad 41 1c	lda $1c41	 LDA SELECT
+.2d84	6d 43 1c	adc $1c43	 ADC OFFSET
+.2d87	85 fb		sta $fb		 STA ZEROUR
+.2d89	ad 42 1c	lda $1c42	 LDA SELECT+1
+.2d8c	6d 44 1c	adc $1c44	 ADC OFFSET+1
+.2d8f	85 fc		sta $fc		 STA ZEROUR+1
+.2d91	a0 00		ldy #$00	 LDY #$00
+.2d93	a2 01		ldx #$01	 LDX #$01 ;RAM BANK 1
+.2d95	b1 fb		lda ($fb),y	 LDA (ZEROUR),Y
+.2d97	60		rts		 RTS
+.2d98	ad 41 1c	lda $1c41	DECSL LDA SELECT
+.2d9b	d0 03		bne $2da0	 BNE *+5
+.2d9d	ce 42 1c	dec $1c42	 DEC SELECT+1
+.2da0	ce 41 1c	dec $1c41	 DEC SELECT
+.2da3	60		rts		 RTS
+.2da4	ad 3d 1c	lda $1c3d	INTSA LDA SA
+.2da7	8d 41 1c	sta $1c41	 STA SELECT
+.2daa	ad 3e 1c	lda $1c3e	 LDA SA+1
+.2dad	8d 42 1c	sta $1c42	 STA SELECT+1
+.2db0	60		rts		 RTS
+>2db1	2e 42 59 54 45 20 24 00		MSGBIT .TEXT '.BYTE $',0
+>2db9	20 3b 42 49 54 20 5a 50		MSGBZP .TEXT ' ;BIT ZP SKIP',0
+>2dc1	20 53 4b 49 50 00
+>2dc7	2a 2b 24 00			POSREL .TEXT '*+$',0
+>2dcb	2a 2d 24 00			NEGREL .TEXT '*-$',0
+>2dcf	2e 45 4e 44 00			MSGEND .TEXT '.END',0
+>2dd4	3b 3f 3f 3f 20 49 4c 4c		ILLMSG .TEXT ';??? ILLEGAL OPCODE',0
+>2ddc	45 47 41 4c 20 4f 50 43 4f 44 45 00
+.2de8	20 80 2d	jsr $2d80	PRTONE JSR GETSL ;GET BYTE
+.2deb	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT BYTE
+.2dee	ad 3b 1c	lda $1c3b	 LDA FOROPT
+.2df1	f0 03		beq $2df6	 BEQ PRTON1
+.2df3	a9 07		lda #$07	 LDA #$07
+>2df5	2c				 .BYTE $2C
+.2df6	a9 09		lda #$09	PRTON1 LDA #$09 ;10 SPACES
+.2df8	20 4e 2d	jsr $2d4e	 JSR SPACM ;
+.2dfb	4c 54 2e	jmp $2e54	 JMP PRTEST ;RESET I/O DEVICE
+.2dfe	20 80 2d	jsr $2d80	PRTTWO JSR GETSL ;GET BYTE
+.2e01	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT BYTE
+.2e04	20 59 2d	jsr $2d59	 JSR SPACE ;
+.2e07	20 77 2d	jsr $2d77	 JSR INCSL ;INC TO OPERAND
+.2e0a	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2e0d	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT IT
+.2e10	ad 3b 1c	lda $1c3b	 LDA FOROPT
+.2e13	f0 03		beq $2e18	 BEQ PRTTW1
+.2e15	a9 04		lda #$04	 LDA #$04
+>2e17	2c				 .BYTE $2C
+.2e18	a9 06		lda #$06	PRTTW1 LDA #$06 ;7 SPACES
+.2e1a	20 4e 2d	jsr $2d4e	 JSR SPACM ;
+.2e1d	20 98 2d	jsr $2d98	 JSR DECSL ;RESET POINTER
+.2e20	4c 54 2e	jmp $2e54	 JMP PRTEST ;RESET I/O DEVICE
+.2e23	20 80 2d	jsr $2d80	PRTTHE JSR GETSL ;GET BYTE
+.2e26	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT BYTE
+.2e29	20 59 2d	jsr $2d59	 JSR SPACE ;
+.2e2c	20 77 2d	jsr $2d77	 JSR INCSL ;INC TO OPERAND
+.2e2f	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2e32	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT IT
+.2e35	20 59 2d	jsr $2d59	 JSR SPACE ;
+.2e38	20 77 2d	jsr $2d77	 JSR INCSL ;INC TO LAST BYTE
+.2e3b	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.2e3e	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT IT
+.2e41	ad 3b 1c	lda $1c3b	 LDA FOROPT
+.2e44	f0 03		beq $2e49	 BEQ PRTTH1
+.2e46	a9 01		lda #$01	 LDA #$01
+>2e48	2c				 .BYTE $2C
+.2e49	a9 03		lda #$03	PRTTH1 LDA #$03 ;4 SPACES
+.2e4b	20 4e 2d	jsr $2d4e	 JSR SPACM ;
+.2e4e	20 98 2d	jsr $2d98	 JSR DECSL ;DEC POINTER
+.2e51	20 98 2d	jsr $2d98	 JSR DECSL ;DEC POINTER
+.2e54	ad 39 1c	lda $1c39	PRTEST LDA OUTPUT ;GET I/O DEVICE
+.2e57	8d 38 1c	sta $1c38	 STA DEVICE ;RESET I/O
+.2e5a	60		rts		 RTS ;RETURN
+.2e5b	ad 38 1c	lda $1c38	PRTDAT LDA DEVICE ;OUTPUT DEVICE
+.2e5e	29 07		and #$07	 AND #$07 ;MASK DISK
+.2e60	8d 38 1c	sta $1c38	 STA DEVICE ;RESET
+.2e63	ad 3b 1c	lda $1c3b	 LDA FOROPT ;CHECK FORMAT
+.2e66	d0 0f		bne $2e77	 BNE PRTDAF ;SKIP LINE #
+.2e68	ad 78 1c	lda $1c78	 LDA LINECT+1 ;HIH BYTE LINE
+.2e6b	ae 77 1c	ldx $1c77	 LDX LINECT ;LOW BYTE LINE
+.2e6e	20 2a 28	jsr $282a	 JSR PRTNUM ;PRINT NUMBER
+.2e71	20 59 2d	jsr $2d59	 JSR SPACE ;
+.2e74	20 59 2d	jsr $2d59	 JSR SPACE ;
+.2e77	20 0a 2d	jsr $2d0a	PRTDAF JSR PSELEC ;PRINT ADDRESS
+.2e7a	a9 01		lda #$01	 LDA #$01 ;2 SPACES
+.2e7c	4c 4e 2d	jmp $2d4e	 JMP SPACM ;
+.2e7f	20 5b 2e	jsr $2e5b	PRTOTH JSR PRTDAT ;PRINT LINE
+.2e82	ad 3b 1c	lda $1c3b	 LDA FOROPT
+.2e85	f0 03		beq $2e8a	 BEQ PRTOT1
+.2e87	a9 09		lda #$09	 LDA #$09
+>2e89	2c				 .BYTE $2C
+.2e8a	a9 0b		lda #$0b	PRTOT1 LDA #$0B ;12 SPACES
+.2e8c	20 4e 2d	jsr $2d4e	 JSR SPACM ;
+.2e8f	4c 54 2e	jmp $2e54	 JMP PRTEST ;RESET I/O
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: internal.asm
+
+.2e92	ad 65 1c	lda $1c65	RANGE LDA WORKED+1 ;GET HIGH
+.2e95	cd 48 1c	cmp $1c48	 CMP EAGOL+1 ;COMPARE
+.2e98	90 0a		bcc $2ea4	 BCC RANG ;< CHECK START
+.2e9a	d0 1a		bne $2eb6	 BNE ROUT ;> OUT OF RANGE
+.2e9c	ad 64 1c	lda $1c64	 LDA WORKED ;GET LOW
+.2e9f	cd 47 1c	cmp $1c47	 CMP EAGOL ;COMPARE
+.2ea2	b0 12		bcs $2eb6	 BCS ROUT ;> OUT OF RANGE
+.2ea4	ad 65 1c	lda $1c65	RANG LDA WORKED+1 ;GET HIGH
+.2ea7	cd 46 1c	cmp $1c46	 CMP SAGOL+1 ;COMPARE
+.2eaa	90 0a		bcc $2eb6	 BCC ROUT ;< OUT OF RANGE
+.2eac	ad 64 1c	lda $1c64	 LDA WORKED ;GET LOW
+.2eaf	cd 45 1c	cmp $1c45	 CMP SAGOL ;COMPARE
+.2eb2	90 02		bcc $2eb6	 BCC ROUT ;< OUT OF RANGE
+.2eb4	18		clc		 CLC ;C=0 IN RANGE
+.2eb5	60		rts		 RTS
+.2eb6	38		sec		ROUT SEC ;C=1 OUT RANGE
+.2eb7	60		rts		 RTS
+.2eb8	ad 0e 1d	lda $1d0e	INITIN LDA DATABE
+.2ebb	8d 4f 1c	sta $1c4f	 STA TABINS
+.2ebe	8d 51 1c	sta $1c51	 STA TABINE
+.2ec1	ad 0f 1d	lda $1d0f	 LDA DATABE+1
+.2ec4	8d 50 1c	sta $1c50	 STA TABINS+1
+.2ec7	8d 52 1c	sta $1c52	 STA TABINE+1
+.2eca	ad 4f 1c	lda $1c4f	INTSET LDA TABINS
+.2ecd	8d 4d 1c	sta $1c4d	 STA TABINP
+.2ed0	ad 50 1c	lda $1c50	 LDA TABINS+1
+.2ed3	8d 4e 1c	sta $1c4e	 STA TABINP+1
+.2ed6	60		rts		 RTS
+.2ed7	ad 4f 1c	lda $1c4f	SAVINT LDA TABINS
+.2eda	8d 6a 1c	sta $1c6a	 STA SAVES
+.2edd	ad 50 1c	lda $1c50	 LDA TABINS+1
+.2ee0	8d 6b 1c	sta $1c6b	 STA SAVES+1
+.2ee3	ad 51 1c	lda $1c51	 LDA TABINE
+.2ee6	8d 6c 1c	sta $1c6c	 STA SAVEE
+.2ee9	ad 52 1c	lda $1c52	 LDA TABINE+1
+.2eec	8d 6d 1c	sta $1c6d	 STA SAVEE+1
+.2eef	60		rts		 RTS
+.2ef0	ad 6a 1c	lda $1c6a	RESINT LDA SAVES
+.2ef3	8d 4f 1c	sta $1c4f	 STA TABINS
+.2ef6	ad 6b 1c	lda $1c6b	 LDA SAVES+1
+.2ef9	8d 50 1c	sta $1c50	 STA TABINS+1
+.2efc	ad 6c 1c	lda $1c6c	 LDA SAVEE
+.2eff	8d 51 1c	sta $1c51	 STA TABINE
+.2f02	ad 6d 1c	lda $1c6d	 LDA SAVEE+1
+.2f05	8d 52 1c	sta $1c52	 STA TABINE+1
+.2f08	60		rts		 RTS
+.2f09	38		sec		PUTI SEC
+.2f0a	ad 4f 1c	lda $1c4f	     LDA TABINS
+.2f0d	ed 51 1c	sbc $1c51	     SBC TABINE
+.2f10	8d 70 1c	sta $1c70	     STA TEMP
+.2f13	ad 50 1c	lda $1c50	     LDA TABINS+1
+.2f16	ed 52 1c	sbc $1c52	     SBC TABINE+1
+.2f19	0d 70 1c	ora $1c70	     ORA TEMP
+.2f1c	f0 05		beq $2f23	     BEQ PUIT
+.2f1e	20 74 2f	jsr $2f74	     JSR INTCHK     ;IS ADDRESS IN TAB
+.2f21	b0 23		bcs $2f46	     BCS INTEXT     ;IF SO EXIT
+.2f23	ad 51 1c	lda $1c51	PUIT LDA TABINE     ;GET LOW END
+.2f26	85 fb		sta $fb		     STA ZEROUR     ;STORE
+.2f28	ad 52 1c	lda $1c52	     LDA TABINE+1   ;GET HIGH END
+.2f2b	85 fc		sta $fc		     STA ZEROUR+1   ;STORE
+.2f2d	a0 00		ldy #$00	     LDY #$00       ;OFFSET
+.2f2f	ad 64 1c	lda $1c64	     LDA WORKED     ;GET LOW ADDRESS
+.2f32	91 fb		sta ($fb),y	     STA (ZEROUR),Y ;PUT IN TABLE
+.2f34	c8		iny		     INY            ;OFFSET TO HIGH
+.2f35	ad 65 1c	lda $1c65	     LDA WORKED+1   ;GET HIGH ADDRESS
+.2f38	91 fb		sta ($fb),y	     STA (ZEROUR),Y ;PUT IN TABLE
+.2f3a	20 1f 2d	jsr $2d1f	     JSR SEMIC      ;PRINT ;
+.2f3d	20 16 2d	jsr $2d16	     JSR PWORKD     ;PRINT ADDRESS
+.2f40	20 48 2f	jsr $2f48	     JSR INCIE      ;INC TO HIGH & LOW
+.2f43	4c 48 2f	jmp $2f48	     JMP INCIE      ;INC TO HIGH & LOW
+=12102					INTEXT = *
+.2f46	18		clc		     CLC            ;C=0 FOR NO MATCH
+.2f47	60		rts		     RTS            ;RETURN
+.2f48	ee 51 1c	inc $1c51	INCIE INC TABINE
+.2f4b	d0 03		bne $2f50	 BNE *+5
+.2f4d	ee 52 1c	inc $1c52	 INC TABINE+1
+.2f50	ee 4d 1c	inc $1c4d	INCI INC TABINP
+.2f53	d0 03		bne $2f58	 BNE *+5
+.2f55	ee 4e 1c	inc $1c4e	 INC TABINP+1
+.2f58	60		rts		 RTS
+.2f59	ad 4d 1c	lda $1c4d	GETI LDA TABINP
+.2f5c	85 fb		sta $fb		 STA ZEROUR
+.2f5e	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.2f61	85 fc		sta $fc		 STA ZEROUR+1
+.2f63	a0 00		ldy #$00	 LDY #$00
+.2f65	b1 fb		lda ($fb),y	 LDA (ZEROUR),Y
+.2f67	60		rts		 RTS
+.2f68	ad 41 1c	lda $1c41	INTCHA LDA SELECT
+.2f6b	8d 64 1c	sta $1c64	 STA WORKED
+.2f6e	ad 42 1c	lda $1c42	 LDA SELECT+1
+.2f71	8d 65 1c	sta $1c65	 STA WORKED+1
+.2f74	20 ca 2e	jsr $2eca	INTCHK JSR INTSET
+.2f77	20 59 2f	jsr $2f59	INTCH  JSR GETI
+.2f7a	8d 66 1c	sta $1c66	 STA WORKER
+.2f7d	20 50 2f	jsr $2f50	 JSR INCI
+.2f80	20 59 2f	jsr $2f59	 JSR GETI
+.2f83	8d 67 1c	sta $1c67	 STA WORKER+1
+.2f86	38		sec		 SEC
+.2f87	ad 65 1c	lda $1c65	 LDA WORKED+1
+.2f8a	ed 67 1c	sbc $1c67	 SBC WORKER+1
+.2f8d	8d 70 1c	sta $1c70	 STA TEMP
+.2f90	ad 64 1c	lda $1c64	 LDA WORKED
+.2f93	ed 66 1c	sbc $1c66	 SBC WORKER
+.2f96	0d 70 1c	ora $1c70	 ORA TEMP
+.2f99	f0 17		beq $2fb2	 BEQ INTMAT
+.2f9b	20 50 2f	jsr $2f50	 JSR INCI
+.2f9e	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.2fa1	cd 52 1c	cmp $1c52	 CMP TABINE+1
+.2fa4	90 d1		bcc $2f77	 BCC INTCH
+.2fa6	d0 08		bne $2fb0	 BNE INTEND
+.2fa8	ad 4d 1c	lda $1c4d	 LDA TABINP
+.2fab	cd 51 1c	cmp $1c51	 CMP TABINE
+.2fae	90 c7		bcc $2f77	 BCC INTCH
+.2fb0	18		clc		INTEND CLC
+.2fb1	60		rts		 RTS
+.2fb2	38		sec		INTMAT SEC
+.2fb3	60		rts		 RTS
+.2fb4	20 ca 2e	jsr $2eca	SORT JSR INTSET ;SET POINTERS
+.2fb7	ad 4f 1c	lda $1c4f	 LDA TABINS
+.2fba	8d 53 1c	sta $1c53	 STA SMALLS
+.2fbd	8d 55 1c	sta $1c55	 STA SMALLP
+.2fc0	ad 50 1c	lda $1c50	 LDA TABINS+1
+.2fc3	8d 54 1c	sta $1c54	 STA SMALLS+1
+.2fc6	8d 56 1c	sta $1c56	 STA SMALLP+1
+.2fc9	20 59 2f	jsr $2f59	SORT1 JSR GETI
+.2fcc	8d 70 1c	sta $1c70	 STA TEMP
+.2fcf	20 50 2f	jsr $2f50	 JSR INCI
+.2fd2	20 59 2f	jsr $2f59	 JSR GETI
+.2fd5	8d 71 1c	sta $1c71	 STA TEMP+1
+.2fd8	20 50 2f	jsr $2f50	SORT2 JSR INCI
+.2fdb	ad 4d 1c	lda $1c4d	 LDA TABINP
+.2fde	8d 55 1c	sta $1c55	 STA SMALLP
+.2fe1	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.2fe4	8d 56 1c	sta $1c56	 STA SMALLP+1
+.2fe7	20 59 2f	jsr $2f59	 JSR GETI
+.2fea	8d 64 1c	sta $1c64	 STA WORKED
+.2fed	20 50 2f	jsr $2f50	 JSR INCI
+.2ff0	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.2ff3	cd 52 1c	cmp $1c52	 CMP TABINE+1
+.2ff6	90 0d		bcc $3005	 BCC T2
+.2ff8	d0 08		bne $3002	 BNE S3
+.2ffa	ad 4d 1c	lda $1c4d	 LDA TABINP
+.2ffd	cd 51 1c	cmp $1c51	 CMP TABINE
+.3000	90 03		bcc $3005	 BCC T2
+.3002	4c 5a 30	jmp $305a	S3 JMP SORT3
+.3005	20 59 2f	jsr $2f59	T2 JSR GETI
+.3008	8d 65 1c	sta $1c65	 STA WORKED+1
+.300b	cd 71 1c	cmp $1c71	 CMP TEMP+1
+.300e	90 0d		bcc $301d	 BCC SMALL
+.3010	d0 08		bne $301a	 BNE LARGE
+.3012	ad 64 1c	lda $1c64	 LDA WORKED
+.3015	cd 70 1c	cmp $1c70	 CMP TEMP
+.3018	90 03		bcc $301d	 BCC SMALL
+.301a	4c d8 2f	jmp $2fd8	LARGE JMP SORT2
+.301d	ad 53 1c	lda $1c53	SMALL LDA SMALLS
+.3020	85 fb		sta $fb		 STA ZEROUR
+.3022	ad 54 1c	lda $1c54	 LDA SMALLS+1
+.3025	85 fc		sta $fc		 STA ZEROUR+1
+.3027	a0 00		ldy #$00	 LDY #$00
+.3029	ad 64 1c	lda $1c64	 LDA WORKED
+.302c	91 fb		sta ($fb),y	 STA (ZEROUR),Y
+.302e	c8		iny		 INY
+.302f	ad 65 1c	lda $1c65	 LDA WORKED+1
+.3032	91 fb		sta ($fb),y	 STA (ZEROUR),Y
+.3034	ad 55 1c	lda $1c55	 LDA SMALLP
+.3037	85 fb		sta $fb		 STA ZEROUR
+.3039	ad 56 1c	lda $1c56	 LDA SMALLP+1
+.303c	85 fc		sta $fc		 STA ZEROUR+1
+.303e	a0 00		ldy #$00	 LDY #$00
+.3040	ad 70 1c	lda $1c70	 LDA TEMP
+.3043	91 fb		sta ($fb),y	 STA (ZEROUR),Y
+.3045	c8		iny		 INY
+.3046	ad 71 1c	lda $1c71	 LDA TEMP+1
+.3049	91 fb		sta ($fb),y	 STA (ZEROUR),Y
+.304b	ad 53 1c	lda $1c53	 LDA SMALLS
+.304e	8d 4d 1c	sta $1c4d	 STA TABINP
+.3051	ad 54 1c	lda $1c54	 LDA SMALLS+1
+.3054	8d 4e 1c	sta $1c4e	 STA TABINP+1
+.3057	4c c9 2f	jmp $2fc9	 JMP SORT1
+.305a	18		clc		SORT3 CLC
+.305b	ad 53 1c	lda $1c53	 LDA SMALLS
+.305e	69 02		adc #$02	 ADC #$02
+.3060	8d 53 1c	sta $1c53	 STA SMALLS
+.3063	8d 4d 1c	sta $1c4d	 STA TABINP
+.3066	ad 54 1c	lda $1c54	 LDA SMALLS+1
+.3069	69 00		adc #$00	 ADC #$00
+.306b	8d 54 1c	sta $1c54	 STA SMALLS+1
+.306e	8d 4e 1c	sta $1c4e	 STA TABINP+1
+.3071	ad 54 1c	lda $1c54	 LDA SMALLS+1
+.3074	cd 52 1c	cmp $1c52	 CMP TABINE+1
+.3077	90 0a		bcc $3083	 BCC SORTOK
+.3079	d0 0b		bne $3086	 BNE SORT4
+.307b	ad 53 1c	lda $1c53	 LDA SMALLS
+.307e	cd 51 1c	cmp $1c51	 CMP TABINE
+.3081	b0 03		bcs $3086	 BCS SORT4
+.3083	4c c9 2f	jmp $2fc9	SORTOK JMP SORT1
+.3086	4c ca 2e	jmp $2eca	SORT4 JMP INTSET
+.3089	38		sec		INTPRT SEC
+.308a	ad 4f 1c	lda $1c4f	 LDA TABINS
+.308d	ed 51 1c	sbc $1c51	 SBC TABINE
+.3090	8d 70 1c	sta $1c70	 STA TEMP
+.3093	ad 50 1c	lda $1c50	 LDA TABINS+1
+.3096	ed 52 1c	sbc $1c52	 SBC TABINE+1
+.3099	0d 70 1c	ora $1c70	 ORA TEMP
+.309c	d0 01		bne $309f	 BNE INTOUT
+.309e	60		rts		 RTS
+.309f	20 3b 29	jsr $293b	INTOUT JSR HEADSY
+.30a2	20 b4 2f	jsr $2fb4	 JSR SORT
+.30a5	a9 03		lda #$03	LOOP1 LDA #$03
+.30a7	8d 71 1c	sta $1c71	 STA SAVA
+.30aa	20 59 2f	jsr $2f59	INTPR JSR GETI
+.30ad	8d 64 1c	sta $1c64	 STA WORKED
+.30b0	20 50 2f	jsr $2f50	 JSR INCI
+.30b3	20 59 2f	jsr $2f59	 JSR GETI
+.30b6	8d 65 1c	sta $1c65	 STA WORKED+1
+.30b9	20 59 2d	jsr $2d59	 JSR SPACE
+.30bc	20 b2 37	jsr $37b2	 JSR SYMOP
+.30bf	90 0b		bcc $30cc	 BCC INTPRS
+.30c1	20 4f 38	jsr $384f	 JSR FIXSYM
+.30c4	a9 02		lda #$02	 LDA #$02
+.30c6	20 4e 2d	jsr $2d4e	 JSR SPACM
+.30c9	4c d1 30	jmp $30d1	 JMP INTPRM
+.30cc	a9 08		lda #$08	INTPRS LDA #$08
+.30ce	20 4e 2d	jsr $2d4e	 JSR SPACM
+.30d1	20 16 2d	jsr $2d16	INTPRM JSR PWORKD
+.30d4	20 50 2f	jsr $2f50	 JSR INCI
+.30d7	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.30da	cd 52 1c	cmp $1c52	 CMP TABINE+1
+.30dd	90 0a		bcc $30e9	 BCC PRTOK
+.30df	d0 15		bne $30f6	 BNE PREND
+.30e1	ad 4d 1c	lda $1c4d	 LDA TABINP
+.30e4	cd 51 1c	cmp $1c51	 CMP TABINE
+.30e7	b0 0d		bcs $30f6	 BCS PREND
+.30e9	ce 71 1c	dec $1c71	PRTOK DEC SAVA
+.30ec	30 0b		bmi $30f9	 BMI LOOP2
+.30ee	a9 02		lda #$02	 LDA #$02
+.30f0	20 4e 2d	jsr $2d4e	 JSR SPACM
+.30f3	4c aa 30	jmp $30aa	 JMP INTPR
+.30f6	4c 10 29	jmp $2910	PREND JMP NEXPTS
+.30f9	20 10 29	jsr $2910	LOOP2 JSR NEXPTS
+.30fc	4c a5 30	jmp $30a5	 JMP LOOP1
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: asc.asm
+
+.30ff	ad 08 1d	lda $1d08	DATAOP LDA NDATA ;GET NUM TABLES
+.3102	f0 07		beq $310b	 BEQ ENDAX ;IF ZERO EXIT
+.3104	a9 00		lda #$00	 LDA #$00 ;ZERO BYTE
+.3106	8d 06 1d	sta $1d06	 STA CDATA ;SET FIRST TABLE
+.3109	f0 03		beq $310e	 BEQ DATAO1 ;
+.310b	4c ef 31	jmp $31ef	ENDAX JMP ENDDAT ;
+.310e	ad 06 1d	lda $1d06	DATAO1 LDA CDATA ;CURRENT TABLE
+.3111	cd 08 1d	cmp $1d08	 CMP NDATA ;LAST TABLE DONE
+.3114	f0 f5		beq $310b	 BEQ ENDAX ;IF SO EXIT
+.3116	0a		asl a		 ASL A ;CDATA*2
+.3117	0a		asl a		 ASL A ;CDATA*4
+.3118	18		clc		 CLC
+.3119	6d 06 1d	adc $1d06	 ADC CDATA ;CDATA*5
+.311c	a8		tay		 TAY ;PUT INTO INDEX
+.311d	b9 10 1d	lda $1d10,y	 LDA TDATA,Y ;START LOW
+.3120	8d 66 1c	sta $1c66	 STA WORKER ;STORE
+.3123	c8		iny		 INY ;INC OFFSET
+.3124	b9 10 1d	lda $1d10,y	 LDA TDATA,Y ;START HIGH
+.3127	8d 67 1c	sta $1c67	 STA WORKER+1 ;STORE
+.312a	38		sec		 SEC ;C=1
+.312b	ad 66 1c	lda $1c66	 LDA WORKER ;
+.312e	ed 41 1c	sbc $1c41	 SBC SELECT ;
+.3131	8d 70 1c	sta $1c70	 STA TEMP ;
+.3134	ad 67 1c	lda $1c67	 LDA WORKER+1 ;
+.3137	ed 42 1c	sbc $1c42	 SBC SELECT+1 ;
+.313a	0d 70 1c	ora $1c70	 ORA TEMP ;
+.313d	f0 05		beq $3144	 BEQ DATAO2 ;MATCH
+.313f	ee 06 1d	inc $1d06	 INC CDATA ;NEXT TABLE
+.3142	d0 ca		bne $310e	 BNE DATAO1 ;CHECK FOR MATCH
+.3144	c8		iny		DATAO2 INY ;INC OFFSET
+.3145	b9 10 1d	lda $1d10,y	 LDA TDATA,Y ;END LOW
+.3148	8d 03 1d	sta $1d03	 STA EAS ;STORE
+.314b	c8		iny		 INY ;INC OFFSET
+.314c	b9 10 1d	lda $1d10,y	 LDA TDATA,Y ;END HIGH
+.314f	8d 04 1d	sta $1d04	 STA EAS+1 ;STORE
+.3152	c8		iny		 INY ;INC OFFSET
+.3153	b9 10 1d	lda $1d10,y	 LDA TDATA,Y ;DATA TYPE
+.3156	8d 05 1d	sta $1d05	 STA TEXTER ;STORE
+.3159	c9 53		cmp #$53	 CMP #'S'       ;IS IT SKIPPER
+.315b	d0 23		bne $3180	 BNE ASCCCC ;
+.315d	ad 31 1c	lda $1c31	 LDA PASS
+.3160	cd 34 1c	cmp $1c34	 CMP CPASS
+.3163	d0 1b		bne $3180	 BNE ASCCCC
+.3165	ad 03 1d	lda $1d03	 LDA EAS
+.3168	8d 41 1c	sta $1c41	 STA SELECT
+.316b	ad 04 1d	lda $1d04	 LDA EAS+1
+.316e	8d 42 1c	sta $1c42	 STA SELECT+1
+.3171	20 77 2d	jsr $2d77	 JSR INCSL
+.3174	20 8f 2c	jsr $2c8f	 JSR ORGIN
+.3177	20 98 2d	jsr $2d98	 JSR DECSL
+.317a	20 b5 2c	jsr $2cb5	 JSR COMENT
+.317d	4c ec 31	jmp $31ec	 JMP DATUT
+.3180	ad 31 1c	lda $1c31	ASCCCC LDA PASS
+.3183	cd 33 1c	cmp $1c33	 CMP EPASS ;EXTERNAL
+.3186	d0 0f		bne $3197	 BNE ASCKK
+.3188	ad 03 1d	lda $1d03	SKIPER LDA EAS
+.318b	8d 41 1c	sta $1c41	 STA SELECT
+.318e	ad 04 1d	lda $1d04	 LDA EAS+1
+.3191	8d 42 1c	sta $1c42	 STA SELECT+1
+.3194	4c ec 31	jmp $31ec	 JMP DATUT
+.3197	ad 31 1c	lda $1c31	ASCKK LDA PASS ;GET PASS
+.319a	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.319d	d0 0e		bne $31ad	 BNE ASCI1 ;NO PRINT
+.319f	20 b5 2c	jsr $2cb5	 JSR COMENT ;COMMENT LINE
+.31a2	ad 31 1c	lda $1c31	ASCII LDA PASS ;GET PASS
+.31a5	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.31a8	d0 03		bne $31ad	 BNE ASCI1 ;NO PRINT
+.31aa	20 5b 2e	jsr $2e5b	 JSR PRTDAT ;PRINT LINE
+.31ad	20 f2 31	jsr $31f2	ASCI1 JSR ACHECK ;DIS ONE LINE
+.31b0	b0 29		bcs $31db	 BCS ASCIIQ ;IF EA STOP
+.31b2	20 e1 ff	jsr $ffe1	 JSR STOP
+.31b5	f0 24		beq $31db	 BEQ ASCIIQ
+.31b7	20 e4 ff	jsr $ffe4	 JSR GETIN
+.31ba	f0 e6		beq $31a2	 BEQ ASCII
+.31bc	c9 20		cmp #$20	 CMP #' '
+.31be	d0 e2		bne $31a2	 BNE ASCII
+.31c0	ad 38 1c	lda $1c38	 LDA DEVICE
+.31c3	48		pha		 PHA
+.31c4	a9 03		lda #$03	 LDA #$03
+.31c6	8d 38 1c	sta $1c38	 STA DEVICE
+.31c9	a9 17		lda #$17	 LDA #<PMSG
+.31cb	a0 1e		ldy #$1e	 LDY #>PMSG
+.31cd	20 0e 28	jsr $280e	 JSR STRPNT
+.31d0	68		pla		 PLA
+.31d1	8d 38 1c	sta $1c38	 STA DEVICE
+.31d4	20 e4 ff	jsr $ffe4	PAUS1 JSR GETIN
+.31d7	f0 fb		beq $31d4	 BEQ PAUS1
+.31d9	d0 c7		bne $31a2	 BNE ASCII
+.31db	ad 31 1c	lda $1c31	ASCIIQ LDA PASS ;GET PASS
+.31de	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.31e1	d0 09		bne $31ec	 BNE DATUT ;EXIT
+.31e3	20 77 2d	jsr $2d77	 JSR INCSL
+.31e6	20 b5 2c	jsr $2cb5	 JSR COMENT ;COMMENT LINE
+.31e9	20 98 2d	jsr $2d98	 JSR DECSL
+.31ec	a9 ff		lda #$ff	DATUT LDA #$FF ;SET N=1
+.31ee	60		rts		 RTS ;RETURN
+.31ef	a9 00		lda #$00	ENDDAT LDA #$00 ;SET N=0
+.31f1	60		rts		 RTS ;RETURN
+.31f2	ad 05 1d	lda $1d05	ACHECK LDA TEXTER ;GET DATA TYPE
+.31f5	c9 34		cmp #$34	 CMP #'4'         ;WORD-1
+.31f7	f0 0b		beq $3204	 BEQ AC0
+.31f9	c9 33		cmp #$33	 CMP #'3'         ;DBYTE
+.31fb	f0 0a		beq $3207	 BEQ AC1
+.31fd	c9 32		cmp #$32	 CMP #'2'         ;WORD
+.31ff	f0 03		beq $3204	 BEQ AC0
+.3201	4c 0a 32	jmp $320a	 JMP BYTES ;BYTE OR ASCII
+.3204	4c c6 32	jmp $32c6	AC0 JMP WORDS ;WORD OR WORD-1
+.3207	4c 96 32	jmp $3296	AC1 JMP DBYTES ;DBYTES
+.320a	ad 31 1c	lda $1c31	BYTES LDA PASS ;GET PASS
+.320d	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.3210	d0 20		bne $3232	 BNE BYTESX ;IF NOT EXIT
+.3212	20 e8 2d	jsr $2de8	 JSR PRTONE ;PRINT BYTE
+.3215	20 de 2c	jsr $2cde	 JSR PRAD ;PRINT ADDRESS
+.3218	a0 33		ldy #$33	 LDY #>MBYTE ;.BYTE
+.321a	a9 82		lda #$82	 LDA #<MBYTE ;
+.321c	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.321f	ad 05 1d	lda $1d05	 LDA TEXTER ;GET TYPE
+.3222	c9 30		cmp #$30	 CMP #'0'          ;ASCII
+.3224	f0 0f		beq $3235	 BEQ ALINE ;ASCII BYTES
+.3226	20 24 2d	jsr $2d24	 JSR DOLLAR ;PRINT $
+.3229	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.322c	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT BYTE
+.322f	20 51 27	jsr $2751	 JSR NEWLIN ;NEXT LINE
+.3232	4c 69 33	jmp $3369	BYTESX JMP NEXTBY ;NEXT BYTE
+.3235	a9 00		lda #$00	ALINE LDA #$00 ;ZERO BYTE
+.3237	8d 70 1c	sta $1c70	 STA TEMP ;STORE IN COUNT
+.323a	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.323d	20 8a 32	jsr $328a	 JSR CASCII ;CHECK FOR ASCII
+.3240	b0 39		bcs $327b	 BCS NASCII ;IF NOT BRANCH
+.3242	a9 27		lda #$27	 LDA #"'"      ;PRINT ONE QUOTE
+.3244	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.3247	20 80 2d	jsr $2d80	ALOP JSR GETSL ;GET BYTE
+.324a	20 8a 32	jsr $328a	 JSR CASCII ;IS IT ASCII
+.324d	b0 24		bcs $3273	 BCS EASCII ;IF NOT END LINE
+.324f	20 64 28	jsr $2864	 JSR PCHAR ;PRINT ASCII
+.3252	20 80 2d	jsr $2d80	 JSR GETSL ; GET BYTE AGAIN
+.3255	c9 27		cmp #$27	 CMP #$27 ;'''
+.3257	d0 03		bne $325c	 BNE Q00000
+.3259	20 64 28	jsr $2864	 JSR PCHAR ;PRINT ASCII
+=12892					Q00000 = *
+.325c	20 69 33	jsr $3369	 JSR NEXTBY ;INC SELECT
+.325f	b0 0d		bcs $326e	 BCS EASCI1 ;C=1 IF END
+.3261	ee 70 1c	inc $1c70	 INC TEMP ;INC COUNT
+.3264	ad 70 1c	lda $1c70	 LDA TEMP ;LOAD COUNT
+.3267	c9 28		cmp #$28	 CMP #$28 ;40 CHAR
+.3269	f0 08		beq $3273	 BEQ EASCII ;IF SO END
+.326b	4c 47 32	jmp $3247	 JMP ALOP ;NEXT
+.326e	20 73 32	jsr $3273	EASCI1 JSR EASCII
+.3271	38		sec		 SEC
+.3272	60		rts		 RTS
+.3273	a9 27		lda #$27	EASCII LDA #"'" ;PRINT ONE QUOTE
+.3275	20 64 28	jsr $2864	 JSR PCHAR ;
+.3278	4c 51 27	jmp $2751	 JMP NEWLIN ;PRINT CR
+.327b	20 24 2d	jsr $2d24	NASCII JSR DOLLAR ;PRINT $
+.327e	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.3281	20 f8 27	jsr $27f8	 JSR PRBYT ;PRINT IT
+.3284	20 51 27	jsr $2751	 JSR NEWLIN ;PRINT CR
+.3287	4c 69 33	jmp $3369	 JMP NEXTBY ;NEXT SL
+.328a	c9 20		cmp #$20	CASCII CMP #$20 ;< SPACE
+.328c	30 06		bmi $3294	 BMI NOASC ;IF LESS NOASCII
+.328e	c9 60		cmp #$60	 CMP #$60 ;> _
+.3290	b0 02		bcs $3294	 BCS NOASC ;IF GREATER NO
+.3292	18		clc		 CLC ;CLEAR CARRY OK
+.3293	60		rts		 RTS ;RETURN
+.3294	38		sec		NOASC SEC ;SET CARRY BAD
+.3295	60		rts		 RTS ;RETURN
+.3296	ad 31 1c	lda $1c31	DBYTES LDA PASS ;CHECK PASS
+.3299	cd 34 1c	cmp $1c34	 CMP CPASS ;LAST PASS
+.329c	d0 25		bne $32c3	 BNE DBYTEX ;EXIT
+.329e	20 fe 2d	jsr $2dfe	 JSR PRTTWO ;PRINT 2 BYTES
+.32a1	20 de 2c	jsr $2cde	 JSR PRAD ;PRINT ADDRESS
+.32a4	a0 33		ldy #$33	 LDY #>MDBYTE ;.DBYTE
+.32a6	a9 92		lda #$92	 LDA #<MDBYTE ;
+.32a8	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.32ab	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.32ae	8d 65 1c	sta $1c65	 STA WORKED+1 ;STORE
+.32b1	20 77 2d	jsr $2d77	 JSR INCSL ;GET BYTE
+.32b4	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.32b7	8d 64 1c	sta $1c64	 STA WORKED ;STORE
+.32ba	20 24 2d	jsr $2d24	 JSR DOLLAR ;PRINT $
+.32bd	20 16 2d	jsr $2d16	 JSR PWORKD ;PRINT WORD
+.32c0	20 51 27	jsr $2751	 JSR NEWLIN ;PRINT CR
+.32c3	4c 69 33	jmp $3369	DBYTEX JMP NEXTBY ;NEXT SL
+.32c6	ad 31 1c	lda $1c31	WORDS LDA PASS ;GET PASS
+.32c9	cd 34 1c	cmp $1c34	 CMP CPASS         ;LAST
+.32cc	d0 0d		bne $32db	 BNE WORD1 ;IF NOT BRANCH
+.32ce	20 fe 2d	jsr $2dfe	 JSR PRTTWO ;PRINT 2 BYTES
+.32d1	20 de 2c	jsr $2cde	 JSR PRAD ;PRINT ADDRESS
+.32d4	a0 33		ldy #$33	 LDY #>MWORD ;.WORD
+.32d6	a9 8a		lda #$8a	 LDA #<MWORD ;
+.32d8	20 0e 28	jsr $280e	 JSR STRPNT ;PRINT IT
+.32db	20 80 2d	jsr $2d80	WORD1 JSR GETSL ;GET BYTE
+.32de	8d 64 1c	sta $1c64	 STA WORKED ;STORE BYTE
+.32e1	8d 55 1c	sta $1c55	 STA SMALLP ;STORE BYTE
+.32e4	20 77 2d	jsr $2d77	 JSR INCSL ;GET BYTE
+.32e7	20 80 2d	jsr $2d80	 JSR GETSL ;GET BYTE
+.32ea	8d 65 1c	sta $1c65	 STA WORKED+1 ;STORE BYTE
+.32ed	8d 56 1c	sta $1c56	 STA SMALLP+1 ;STORE BYTE
+.32f0	ad 05 1d	lda $1d05	 LDA TEXTER ;GET OPTION
+.32f3	c9 34		cmp #$34	 CMP #'4'          ;.WORD ADRS-1
+.32f5	f0 2a		beq $3321	 BEQ WORDM ;BRANCH
+.32f7	ad 31 1c	lda $1c31	 LDA PASS ;CHECK PASS
+.32fa	cd 32 1c	cmp $1c32	 CMP IPASS  ;INTERNAL
+.32fd	f0 16		beq $3315	 BEQ WORDPT ;TABLE WORD
+.32ff	cd 33 1c	cmp $1c33	 CMP EPASS
+.3302	f0 17		beq $331b	 BEQ WORDSY
+.3304	20 b2 37	jsr $37b2	 JSR SYMOP ;CHECK SYMBOL
+.3307	b0 5a		bcs $3363	 BCS WORDS3 ;C=1 SYMBOL
+.3309	20 24 2d	jsr $2d24	 JSR DOLLAR ;PRINT $
+.330c	20 16 2d	jsr $2d16	 JSR PWORKD ;PRINT WORD
+.330f	20 51 27	jsr $2751	 JSR NEWLIN ;PRINT CR
+.3312	4c 69 33	jmp $3369	WORDSX JMP NEXTBY ;NEXT SL
+.3315	20 09 2f	jsr $2f09	WORDPT JSR PUTI ;PUT IN TABLE
+.3318	4c 69 33	jmp $3369	 JMP NEXTBY ;NEXT SL
+.331b	20 b2 37	jsr $37b2	WORDSY JSR SYMOP
+.331e	4c 69 33	jmp $3369	 JMP NEXTBY
+.3321	18		clc		WORDM CLC
+.3322	ad 64 1c	lda $1c64	 LDA WORKED
+.3325	69 01		adc #$01	 ADC #$01
+.3327	8d 64 1c	sta $1c64	 STA WORKED
+.332a	ad 65 1c	lda $1c65	 LDA WORKED+1
+.332d	69 00		adc #$00	 ADC #$00
+.332f	8d 65 1c	sta $1c65	 STA WORKED+1
+.3332	ad 31 1c	lda $1c31	 LDA PASS ;CHECK PASS
+.3335	cd 32 1c	cmp $1c32	 CMP IPASS ;INTERNAL
+.3338	f0 db		beq $3315	 BEQ WORDPT ;TABLE WORD
+.333a	cd 33 1c	cmp $1c33	 CMP EPASS ;EXTERNAL
+.333d	f0 dc		beq $331b	 BEQ WORDSY ;TABLE WORD
+.333f	20 b2 37	jsr $37b2	 JSR SYMOP ;CHECK SYMBOL
+.3342	90 0d		bcc $3351	 BCC WORDS2 ;C=0 NO SYMBOL
+.3344	a9 2d		lda #$2d	 LDA #'-'
+.3346	20 64 28	jsr $2864	 JSR PCHAR
+.3349	a9 31		lda #$31	 LDA #'1'
+.334b	20 64 28	jsr $2864	 JSR PCHAR
+.334e	4c 63 33	jmp $3363	 JMP WORDS3
+.3351	20 24 2d	jsr $2d24	WORDS2 JSR DOLLAR ;PRINT $
+.3354	ad 55 1c	lda $1c55	 LDA SMALLP
+.3357	8d 64 1c	sta $1c64	 STA WORKED
+.335a	ad 56 1c	lda $1c56	 LDA SMALLP+1
+.335d	8d 65 1c	sta $1c65	 STA WORKED+1
+.3360	20 16 2d	jsr $2d16	 JSR PWORKD ;PRINT WORD
+.3363	20 51 27	jsr $2751	WORDS3 JSR NEWLIN ;PRINT CR
+.3366	4c 69 33	jmp $3369	WORDXX JMP NEXTBY ;NEXT SL
+.3369	ad 42 1c	lda $1c42	NEXTBY LDA SELECT+1
+.336c	cd 04 1d	cmp $1d04	 CMP EAS+1
+.336f	90 0a		bcc $337b	 BCC SBLOK
+.3371	d0 0d		bne $3380	 BNE NOBINC
+.3373	ad 41 1c	lda $1c41	 LDA SELECT
+.3376	cd 03 1d	cmp $1d03	 CMP EAS
+.3379	b0 05		bcs $3380	 BCS NOBINC
+.337b	20 77 2d	jsr $2d77	SBLOK JSR INCSL
+.337e	18		clc		 CLC
+.337f	60		rts		 RTS
+.3380	38		sec		NOBINC SEC
+.3381	60		rts		 RTS
+>3382	20 2e 42 59 54 45 20 00		MBYTE .TEXT ' .BYTE ',0
+>338a	20 2e 57 4f 52 44 20 00		MWORD .TEXT ' .WORD ',0
+>3392	20 2e 44 42 59 54 45 20		MDBYTE .TEXT ' .DBYTE ',0
+>339a	00
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: table.asm
+
+.339b	a2 03		ldx #$03	MNEMON LDX #3       ;3 CHARACTERS
+.339d	8e 70 1c	stx $1c70	       STX TEMP     ;COUNTER
+.33a0	aa		tax		       TAX          ;CODE IS INDEX
+.33a1	bd 16 35	lda $3516,x	       LDA MCODES,X ;GET OFFSET
+.33a4	aa		tax		       TAX          ;INDEX OFFSET
+.33a5	bd 3e 34	lda $343e,x	MNLOOP LDA MNAMES,X ;GET CHARACTER
+.33a8	f0 09		beq $33b3	       BEQ ILLOP    ;ILLEGAL OPCODE MNEMONIC CHAR IS A NULL
+.33aa	8e 72 1c	stx $1c72	       STX SAVX     ;SAVE INDEX
+.33ad	20 64 28	jsr $2864	       JSR PCHAR    ;PRINT CHAR
+.33b0	ae 72 1c	ldx $1c72	       LDX SAVX     ;GET INDEX
+=13235					ILLOP = *
+.33b3	e8		inx		       INX          ;NEXT CHAR
+.33b4	ce 70 1c	dec $1c70	       DEC TEMP     ;DEC COUNT
+.33b7	d0 ec		bne $33a5	       BNE MNLOOP   ;LOOP TILL 0
+.33b9	60		rts		       RTS          ;RETURN
+.33ba	48		pha		PRTASS PHA ;STACK INDEX
+.33bb	20 5b 2e	jsr $2e5b	 JSR PRTDAT ;PRINT LINE DATA
+.33be	68		pla		 PLA ;PULL INDEX
+.33bf	a8		tay		 TAY ;SAVE INDEX
+.33c0	a9 ea		lda #$ea	 LDA #<SUBP
+.33c2	a2 33		ldx #$33	 LDX #>SUBP
+.33c4	4c d4 33	jmp $33d4	 JMP GETOPE ;LOOK UP ROUTINE
+.33c7	a8		tay		OPERN1 TAY ;SAVE INDEX
+.33c8	a9 06		lda #$06	 LDA #<SUBS1
+.33ca	a2 34		ldx #$34	 LDX #>SUBS1
+.33cc	4c d4 33	jmp $33d4	 JMP GETOPE ;LOOK UP ROUTINE
+.33cf	a8		tay		OPERND TAY ;SAVE INDEX
+.33d0	a9 22		lda #$22	 LDA #<SUBS
+.33d2	a2 34		ldx #$34	 LDX #>SUBS
+.33d4	85 fb		sta $fb		GETOPE STA ZEROUR ;LOW TABLE
+.33d6	86 fc		stx $fc		 STX ZEROUR+1 ;HIGH TABLE
+.33d8	b9 16 36	lda $3616,y	 LDA MODES,Y ;GET OFFSET
+.33db	a8		tay		 TAY ;INDEX OFFSET
+.33dc	b1 fb		lda ($fb),y	 LDA (ZEROUR),Y ;GET LOW BYTE
+.33de	8d 6e 1c	sta $1c6e	 STA ADRS ;STORE
+.33e1	c8		iny		 INY ;INC INDEX
+.33e2	b1 fb		lda ($fb),y	 LDA (ZEROUR),Y ;GET HIGH BYTE
+.33e4	8d 6f 1c	sta $1c6f	 STA ADRS+1 ;STORE
+.33e7	6c 6e 1c	jmp ($1c6e)	 JMP (ADRS) ;INDIRECT JMP
+=13290					SUBP = *     ; MODES
+>33ea	e8 2d				.WORD PRTONE ; 0  $00
+>33ec	e8 2d				.WORD PRTONE ; 2  $02
+>33ee	fe 2d				.WORD PRTTWO ; 4  $04
+>33f0	fe 2d				.WORD PRTTWO ; 6  $06
+>33f2	fe 2d				.WORD PRTTWO ; 8  $08
+>33f4	fe 2d				.WORD PRTTWO ; 10 $0A
+>33f6	23 2e				.WORD PRTTHE ; 12 $0C
+>33f8	23 2e				.WORD PRTTHE ; 14 $0E
+>33fa	23 2e				.WORD PRTTHE ; 16 $10
+>33fc	e8 2d				.WORD PRTONE ; 18 $12
+>33fe	fe 2d				.WORD PRTTWO ; 20 $14
+>3400	fe 2d				.WORD PRTTWO ; 22 $16
+>3402	fe 2d				.WORD PRTTWO ; 24 $18
+>3404	23 2e				.WORD PRTTHE ; 26 $1A
+=13318					SUBS1 = *    ; MODES
+>3406	dd 2b				.WORD IMPONE ; 0  $00
+>3408	dd 2b				.WORD IMPONE ; 2  $02
+>340a	58 2b				.WORD IMMEDT ; 4  $04
+>340c	a1 2a				.WORD ONEBYT ; 6  $06
+>340e	a1 2a				.WORD ONEBYT ; 8  $08
+>3410	a1 2a				.WORD ONEBYT ; 10 $0A
+>3412	d6 2a				.WORD TWOBYT ; 12 $0C
+>3414	d6 2a				.WORD TWOBYT ; 14 $0E
+>3416	d6 2a				.WORD TWOBYT ; 16 $10
+>3418	dd 2b				.WORD IMPONE ; 18 $12
+>341a	14 2c				.WORD RELATV ; 20 $14
+>341c	a1 2a				.WORD ONEBYT ; 22 $16
+>341e	a1 2a				.WORD ONEBYT ; 24 $18
+>3420	d6 2a				.WORD TWOBYT ; 26 $1A
+=13346					SUBS  = *    ; MODES
+>3422	12 2b				.WORD ILLEGL ; 0  $00
+>3424	53 2b				.WORD ACC    ; 2  $02
+>3426	58 2b				.WORD IMMEDT ; 4  $04
+>3428	8f 2b				.WORD ZEROPG ; 6  $06
+>342a	92 2b				.WORD ZEROX  ; 8  $08
+>342c	98 2b				.WORD ZEROY  ; 10 $0A
+>342e	9f 2b				.WORD ABSLUT ; 12 $0C
+>3430	c4 2b				.WORD ABSX   ; 14 $0E
+>3432	ca 2b				.WORD ABSY   ; 16 $10
+>3434	d0 2b				.WORD IMPLID ; 18 $12
+>3436	14 2c				.WORD RELATV ; 20 $14
+>3438	ff 2b				.WORD INDX   ; 22 $16
+>343a	08 2c				.WORD INDY   ; 24 $18
+>343c	ea 2b				.WORD INDRCT ; 26 $1A
+=13374					MNAMES = *  ; MCODES
+>343e	00 00 00			.BYTE 0,0,0 ; 0   $00
+>3441	41 44 43			.TEXT 'ADC' ; 3   $03
+>3444	41 4e 44			.TEXT 'AND' ; 6   $06
+>3447	41 53 4c			.TEXT 'ASL' ; 9   $09
+>344a	42 43 43			.TEXT 'BCC' ; 12  $0C
+>344d	42 43 53			.TEXT 'BCS' ; 15  $0F
+>3450	42 45 51			.TEXT 'BEQ' ; 18  $12
+>3453	42 49 54			.TEXT 'BIT' ; 21  $15
+>3456	42 4d 49			.TEXT 'BMI' ; 24  $18
+>3459	42 4e 45			.TEXT 'BNE' ; 27  $1B
+>345c	42 50 4c			.TEXT 'BPL' ; 30  $1E
+>345f	42 52 4b			.TEXT 'BRK' ; 33  $21
+>3462	42 56 43			.TEXT 'BVC' ; 36  $24
+>3465	42 56 53			.TEXT 'BVS' ; 39  $27
+>3468	43 4c 43			.TEXT 'CLC' ; 42  $2A
+>346b	43 4c 44			.TEXT 'CLD' ; 45  $2D
+>346e	43 4c 49			.TEXT 'CLI' ; 48  $30
+>3471	43 4c 56			.TEXT 'CLV' ; 51  $33
+>3474	43 4d 50			.TEXT 'CMP' ; 54  $36
+>3477	43 50 58			.TEXT 'CPX' ; 57  $39
+>347a	43 50 59			.TEXT 'CPY' ; 60  $3C
+>347d	44 45 43			.TEXT 'DEC' ; 63  $3F
+>3480	44 45 58			.TEXT 'DEX' ; 66  $42
+>3483	44 45 59			.TEXT 'DEY' ; 69  $45
+>3486	45 4f 52			.TEXT 'EOR' ; 72  $48
+>3489	49 4e 43			.TEXT 'INC' ; 75  $4B
+>348c	49 4e 58			.TEXT 'INX' ; 78  $4E
+>348f	49 4e 59			.TEXT 'INY' ; 81  $51
+>3492	4a 4d 50			.TEXT 'JMP' ; 84  $54
+>3495	4a 53 52			.TEXT 'JSR' ; 87  $57
+>3498	4c 44 41			.TEXT 'LDA' ; 90  $5A
+>349b	4c 44 58			.TEXT 'LDX' ; 93  $5D
+>349e	4c 44 59			.TEXT 'LDY' ; 96  $60
+>34a1	4c 53 52			.TEXT 'LSR' ; 99  $63
+>34a4	4e 4f 50			.TEXT 'NOP' ; 102 $66
+>34a7	4f 52 41			.TEXT 'ORA' ; 105 $69
+>34aa	50 48 41			.TEXT 'PHA' ; 108 $6C
+>34ad	50 48 50			.TEXT 'PHP' ; 111 $6F
+>34b0	50 4c 41			.TEXT 'PLA' ; 114 $72
+>34b3	50 4c 50			.TEXT 'PLP' ; 117 $75
+>34b6	52 4f 4c			.TEXT 'ROL' ; 120 $78
+>34b9	52 4f 52			.TEXT 'ROR' ; 123 $7B
+>34bc	52 54 49			.TEXT 'RTI' ; 126 $7E
+>34bf	52 54 53			.TEXT 'RTS' ; 129 $81
+>34c2	53 42 43			.TEXT 'SBC' ; 132 $84
+>34c5	53 45 43			.TEXT 'SEC' ; 135 $87
+>34c8	53 45 44			.TEXT 'SED' ; 138 $8A
+>34cb	53 45 49			.TEXT 'SEI' ; 141 $8D
+>34ce	53 54 41			.TEXT 'STA' ; 144 $90
+>34d1	53 54 58			.TEXT 'STX' ; 147 $93
+>34d4	53 54 59			.TEXT 'STY' ; 150 $96
+>34d7	54 41 58			.TEXT 'TAX' ; 153 $99
+>34da	54 41 59			.TEXT 'TAY' ; 156 $9C
+>34dd	54 53 58			.TEXT 'TSX' ; 159 $9F
+>34e0	54 58 41			.TEXT 'TXA' ; 162 $A2
+>34e3	54 58 53			.TEXT 'TXS' ; 165 $A5
+>34e6	54 59 41			.TEXT 'TYA' ; 168 $A8
+>34e9	41 53 4f			.TEXT 'ASO' ; 171 $AB
+>34ec	52 4c 41			.TEXT 'RLA' ; 174 $AE
+>34ef	4c 53 45			.TEXT 'LSE' ; 177 $B1
+>34f2	52 52 41			.TEXT 'RRA' ; 180 $B4
+>34f5	41 58 53			.TEXT 'AXS' ; 183 $B7
+>34f8	4c 41 58			.TEXT 'LAX' ; 186 $BA
+>34fb	44 43 4d			.TEXT 'DCM' ; 189 $BD
+>34fe	49 4e 53			.TEXT 'INS' ; 192 $C0
+>3501	41 4c 52			.TEXT 'ALR' ; 195 $C3
+>3504	41 52 52			.TEXT 'ARR' ; 198 $C6
+>3507	4f 41 4c			.TEXT 'OAL' ; 201 $C9
+>350a	53 41 58			.TEXT 'SAX' ; 204 $CC
+>350d	4e 4f 50			.TEXT 'NOP' ; 207 $CF
+>3510	53 4b 42			.TEXT 'SKB' ; 210 $D2
+>3513	53 4b 57			.TEXT 'SKW' ; 213 $D5
+=13590					MCODES = *
+>3516	21 69 00 00 00 69 09 00		.BYTE $21,$69,$00,$00,$00,$69,$09,$00
+>351e	6f 69 09 00 00 69 09 00		.BYTE $6F,$69,$09,$00,$00,$69,$09,$00
+>3526	1e 69 00 00 00 69 09 00		.BYTE $1E,$69,$00,$00,$00,$69,$09,$00
+>352e	2a 69 00 00 00 69 09 00		.BYTE $2A,$69,$00,$00,$00,$69,$09,$00
+>3536	57 06 00 00 15 06 78 00		.BYTE $57,$06,$00,$00,$15,$06,$78,$00
+>353e	75 06 78 00 15 06 78 00		.BYTE $75,$06,$78,$00,$15,$06,$78,$00
+>3546	18 06 00 00 00 06 78 00		.BYTE $18,$06,$00,$00,$00,$06,$78,$00
+>354e	87 06 00 00 00 06 78 00		.BYTE $87,$06,$00,$00,$00,$06,$78,$00
+>3556	7e 48 00 00 00 48 63 00		.BYTE $7E,$48,$00,$00,$00,$48,$63,$00
+>355e	6c 48 63 00 54 48 63 00		.BYTE $6C,$48,$63,$00,$54,$48,$63,$00
+>3566	24 48 00 00 00 48 63 00		.BYTE $24,$48,$00,$00,$00,$48,$63,$00
+>356e	30 48 00 00 00 48 63 00		.BYTE $30,$48,$00,$00,$00,$48,$63,$00
+>3576	81 03 00 00 00 03 7b 00		.BYTE $81,$03,$00,$00,$00,$03,$7B,$00
+>357e	72 03 7b 00 54 03 7b 00		.BYTE $72,$03,$7B,$00,$54,$03,$7B,$00
+>3586	27 03 00 00 00 03 7b 00		.BYTE $27,$03,$00,$00,$00,$03,$7B,$00
+>358e	8d 03 00 00 00 03 7b 00		.BYTE $8D,$03,$00,$00,$00,$03,$7B,$00
+>3596	00 90 00 00 96 90 93 00		.BYTE $00,$90,$00,$00,$96,$90,$93,$00
+>359e	45 00 a2 00 96 90 93 00		.BYTE $45,$00,$A2,$00,$96,$90,$93,$00
+>35a6	0c 90 00 00 96 90 93 00		.BYTE $0C,$90,$00,$00,$96,$90,$93,$00
+>35ae	a8 90 a5 00 00 90 00 00		.BYTE $A8,$90,$A5,$00,$00,$90,$00,$00
+>35b6	60 5a 5d 00 60 5a 5d 00		.BYTE $60,$5A,$5D,$00,$60,$5A,$5D,$00
+>35be	9c 5a 99 00 60 5a 5d 00		.BYTE $9C,$5A,$99,$00,$60,$5A,$5D,$00
+>35c6	0f 5a 00 00 60 5a 5d 00		.BYTE $0F,$5A,$00,$00,$60,$5A,$5D,$00
+>35ce	33 5a 9f 00 60 5a 5d 00		.BYTE $33,$5A,$9F,$00,$60,$5A,$5D,$00
+>35d6	3c 36 00 00 3c 36 3f 00		.BYTE $3C,$36,$00,$00,$3C,$36,$3F,$00
+>35de	51 36 42 00 3c 36 3f 00		.BYTE $51,$36,$42,$00,$3C,$36,$3F,$00
+>35e6	1b 36 00 00 00 36 3f 00		.BYTE $1B,$36,$00,$00,$00,$36,$3F,$00
+>35ee	2d 36 00 00 00 36 3f 00		.BYTE $2D,$36,$00,$00,$00,$36,$3F,$00
+>35f6	39 84 00 00 39 84 4b 00		.BYTE $39,$84,$00,$00,$39,$84,$4B,$00
+>35fe	4e 84 66 00 39 84 4b 00		.BYTE $4E,$84,$66,$00,$39,$84,$4B,$00
+>3606	12 84 00 00 00 84 4b 00		.BYTE $12,$84,$00,$00,$00,$84,$4B,$00
+>360e	8a 84 00 00 00 84 4b 00		.BYTE $8A,$84,$00,$00,$00,$84,$4B,$00
+=13846					MODES = *
+>3616	12 16 00 00 00 06 06 00		.BYTE 18,22,0,0,0,6,6,0
+>361e	12 04 02 00 00 0c 0c 00		.BYTE 18,4,2,0,0,12,12,0
+>3626	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>362e	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+>3636	0c 16 00 00 06 06 06 00		.BYTE 12,22,0,0,6,6,6,0
+>363e	12 04 02 00 0c 0c 0c 00		.BYTE 18,4,2,0,12,12,12,0
+>3646	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>364e	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+>3656	12 16 00 00 00 06 06 00		.BYTE 18,22,0,0,0,6,6,0
+>365e	12 04 02 00 0c 0c 0c 00		.BYTE 18,4,2,0,12,12,12,0
+>3666	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>366e	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+>3676	12 16 00 00 00 06 06 00		.BYTE 18,22,0,0,0,6,6,0
+>367e	12 04 02 00 1a 0c 0c 00		.BYTE 18,4,2,0,26,12,12,0
+>3686	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>368e	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+>3696	00 16 00 00 06 06 06 00		.BYTE 0,22,0,0,6,6,6,0
+>369e	12 00 12 00 0c 0c 0c 00		.BYTE 18,0,18,0,12,12,12,0
+>36a6	14 18 00 00 08 08 0a 00		.BYTE 20,24,0,0,8,8,10,0
+>36ae	12 10 12 00 00 0e 00 00		.BYTE 18,16,18,0,0,14,0,0
+>36b6	04 16 04 00 06 06 06 00		.BYTE 4,22,4,0,6,6,6,0
+>36be	12 04 12 00 0c 0c 0c 00		.BYTE 18,4,18,0,12,12,12,0
+>36c6	14 18 00 00 08 08 0a 00		.BYTE 20,24,0,0,8,8,10,0
+>36ce	12 10 12 00 0e 0e 10 00		.BYTE 18,16,18,0,14,14,16,0
+>36d6	04 16 00 00 06 06 06 00		.BYTE 4,22,0,0,6,6,6,0
+>36de	12 04 12 00 0c 0c 0c 00		.BYTE 18,4,18,0,12,12,12,0
+>36e6	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>36ee	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+>36f6	04 16 00 00 06 06 06 00		.BYTE 4,22,0,0,6,6,6,0
+>36fe	12 04 12 00 0c 0c 0c 00		.BYTE 18,4,18,0,12,12,12,0
+>3706	14 18 00 00 00 08 08 00		.BYTE 20,24,0,0,0,8,8,0
+>370e	12 10 00 00 00 0e 0e 00		.BYTE 18,16,0,0,0,14,14,0
+
+;******  Return to file: disa.asm
+
+
+;******  Processing file: sym.asm
+
+.3716	a9 8a		lda #$8a	SOP    LDA #<MSS1  ;LOW BYTE MESSAGE
+.3718	a0 3a		ldy #$3a	       LDY #>MSS1  ;HIGH BYTE MESSAGE
+.371a	20 0e 28	jsr $280e	       JSR STRPNT  ;OUTPUT MESSAGE
+.371d	20 d6 27	jsr $27d6	       JSR CRYS
+.3720	90 08		bcc $372a	       BCC SOP1    ;C=0 YES
+.3722	a9 00		lda #$00	       LDA #$00    ;SET SYMBLOIC FLAG
+.3724	8d 57 1c	sta $1c57	       STA SYMBOL  ;STORE FLAG
+.3727	4c 73 37	jmp $3773	       JMP SY      ;FOR INTERNAL
+.372a	a9 01		lda #$01	SOP1   LDA #$01    ;SET SYMBOLIC FLAG
+.372c	8d 57 1c	sta $1c57	       STA SYMBOL  ;STORE FLAG
+.372f	a9 cd		lda #$cd	 LDA #<STABLE
+.3731	8d 5a 1c	sta $1c5a	 STA SYMBOS
+.3734	8d 58 1c	sta $1c58	 STA SYMBOP
+.3737	a9 43		lda #$43	 LDA #>STABLE
+.3739	8d 5b 1c	sta $1c5b	 STA SYMBOS+1
+.373c	8d 59 1c	sta $1c59	 STA SYMBOP+1
+.373f	a9 ae		lda #$ae	SYTAB LDA #<MSS2 ;LOW BYTE MESSAGE
+.3741	a0 3a		ldy #$3a	 LDY #>MSS2 ;HIGH BYTE MESSAGE
+.3743	20 0e 28	jsr $280e	 JSR STRPNT ;OUTPUT MESSAGE
+.3746	20 e3 27	jsr $27e3	 JSR CRNO ;GET KEY PRESS
+.3749	b0 28		bcs $3773	 BCS SY ;C=1 NO
+.374b	a9 f2		lda #$f2	 LDA #<MSS4
+.374d	a0 3a		ldy #$3a	 LDY #>MSS4
+.374f	20 0e 28	jsr $280e	 JSR STRPNT
+.3752	20 e3 27	jsr $27e3	 JSR CRNO
+.3755	b0 0a		bcs $3761	 BCS SOP4
+.3757	a9 50		lda #$50	 LDA #<UTABLE
+.3759	8d 58 1c	sta $1c58	 STA SYMBOP
+.375c	a9 45		lda #$45	 LDA #>UTABLE
+.375e	8d 59 1c	sta $1c59	 STA SYMBOP+1
+.3761	20 06 39	jsr $3906	SOP4 JSR READXX ;READ FILE
+.3764	b0 0d		bcs $3773	 BCS SY ;C=1 ERROR
+.3766	ad 58 1c	lda $1c58	 LDA SYMBOP ;XREF POINTER
+.3769	8d 5c 1c	sta $1c5c	 STA SYMBOE
+.376c	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.376f	8d 5d 1c	sta $1c5d	 STA SYMBOE+1
+.3772	60		rts		 RTS
+.3773	a9 50		lda #$50	SY LDA #<UTABLE
+.3775	8d 5c 1c	sta $1c5c	 STA SYMBOE
+.3778	a9 45		lda #$45	 LDA #>UTABLE
+.377a	8d 5d 1c	sta $1c5d	 STA SYMBOE+1
+.377d	60		rts		 RTS
+.377e	ad 5a 1c	lda $1c5a	SSET LDA SYMBOS
+.3781	8d 58 1c	sta $1c58	 STA SYMBOP
+.3784	ad 5b 1c	lda $1c5b	 LDA SYMBOS+1
+.3787	8d 59 1c	sta $1c59	 STA SYMBOP+1
+.378a	60		rts		 RTS
+.378b	ad 51 1c	lda $1c51	EQUINT LDA TABINE
+.378e	8d 4d 1c	sta $1c4d	 STA TABINP
+.3791	8d 4f 1c	sta $1c4f	 STA TABINS
+.3794	ad 52 1c	lda $1c52	 LDA TABINE+1
+.3797	8d 4e 1c	sta $1c4e	 STA TABINP+1
+.379a	8d 50 1c	sta $1c50	 STA TABINS+1
+.379d	60		rts		 RTS
+.379e	ad 57 1c	lda $1c57	SYM LDA SYMBOL
+.37a1	f0 43		beq $37e6	 BEQ SYMEND
+.37a3	ad 41 1c	lda $1c41	 LDA SELECT ;COPY SELECT
+.37a6	8d 64 1c	sta $1c64	 STA WORKED ;ADDRESS INTO
+.37a9	ad 42 1c	lda $1c42	 LDA SELECT+1 ;WORKED
+.37ac	8d 65 1c	sta $1c65	 STA WORKED+1
+.37af	4c b7 37	jmp $37b7	 JMP SYM1 ;CHECK FOR MATCH
+.37b2	ad 57 1c	lda $1c57	SYMOP LDA SYMBOL
+.37b5	f0 2f		beq $37e6	 BEQ SYMEND
+.37b7	20 7e 37	jsr $377e	SYM1 JSR SSET
+.37ba	20 87 38	jsr $3887	SYM2 JSR GETC
+.37bd	8d 67 1c	sta $1c67	 STA WORKER+1
+.37c0	20 7e 38	jsr $387e	 JSR INCC
+.37c3	20 87 38	jsr $3887	 JSR GETC
+.37c6	8d 66 1c	sta $1c66	 STA WORKER
+.37c9	38		sec		 SEC ;SET CARRY
+.37ca	ad 66 1c	lda $1c66	 LDA WORKER
+.37cd	ed 64 1c	sbc $1c64	 SBC WORKED ;SUB FROM LOW
+.37d0	8d 70 1c	sta $1c70	 STA TEMP ;STORE RESULT
+.37d3	ad 67 1c	lda $1c67	 LDA WORKER+1
+.37d6	ed 65 1c	sbc $1c65	 SBC WORKED+1 ;SUB FROM HIGH
+.37d9	0d 70 1c	ora $1c70	 ORA TEMP ;OR RESULTS
+.37dc	f0 0a		beq $37e8	 BEQ MATCH ;CHECK FOR MATCH
+.37de	20 5a 38	jsr $385a	 JSR NEXTC ;IF NOT NEXT
+.37e1	b0 03		bcs $37e6	 BCS SYMEND ;END OF TABLE?
+.37e3	4c ba 37	jmp $37ba	 JMP SYM2 ;NO CHECK NEXT
+.37e6	18		clc		SYMEND CLC ;NO MATCHES CLEAR
+.37e7	60		rts		 RTS ;RETURN
+.37e8	ad 31 1c	lda $1c31	MATCH LDA PASS ;CHECK PASS
+.37eb	cd 34 1c	cmp $1c34	 CMP CPASS ;IS IT LAST
+.37ee	f0 18		beq $3808	 BEQ MATCHS ;IF SO PRINT
+.37f0	cd 35 1c	cmp $1c35	 CMP SPASS
+.37f3	f0 3a		beq $382f	 BEQ MATCHT
+.37f5	20 92 2e	jsr $2e92	 JSR RANGE ;SYMBOL IN RANGE
+.37f8	90 3f		bcc $3839	 BCC MATEXT ;NO INTERNAL EQ
+.37fa	20 7e 38	jsr $387e	 JSR INCC ;INC TO SYMBOL
+.37fd	20 87 38	jsr $3887	 JSR GETC ;GET FIRST CHAR
+.3800	c9 20		cmp #$20	 CMP #$20 ;SPACE
+.3802	f0 03		beq $3807	 BEQ MATONE ;NOT EQUATE
+.3804	4c 09 2f	jmp $2f09	 JMP PUTI ;PUT IN EQUATE
+.3807	60		rts		MATONE RTS ;RETURN
+.3808	20 7e 38	jsr $387e	MATCHS JSR INCC ;INC TO LABEL
+.380b	20 87 38	jsr $3887	 JSR GETC ;GET CHARARCTER
+.380e	c9 20		cmp #$20	 CMP #$20 ;IS IT SPACE
+.3810	d0 1d		bne $382f	 BNE MATCHT ;IF NOT GO ON
+.3812	38		sec		 SEC ;SET CARRY
+.3813	ad 58 1c	lda $1c58	 LDA SYMBOP ;GET LOW POINT
+.3816	e9 09		sbc #$09	 SBC #$09 ;LAST SYMBOL
+.3818	48		pha		 PHA ;PUSH ON STACK
+.3819	ad 59 1c	lda $1c59	 LDA SYMBOP+1 ;GET HIGH POINT
+.381c	e9 00		sbc #$00	 SBC #$00 ;LAST SYMBOL
+.381e	a8		tay		 TAY ;PUT IN Y
+.381f	68		pla		 PLA ;GET LO POINT
+.3820	20 3a 38	jsr $383a	 JSR STRSYM ;PRINT SYMBOL
+.3823	a9 2b		lda #$2b	 LDA #'+'         ;ASCII +
+.3825	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.3828	a9 31		lda #$31	 LDA #'1'         ;ASCII 1
+.382a	20 64 28	jsr $2864	 JSR PCHAR ;PRINT IT
+.382d	38		sec		 SEC ;C=1 SYMBOL
+.382e	60		rts		 RTS ;RETURN
+.382f	ad 58 1c	lda $1c58	MATCHT LDA SYMBOP ;LOW BYTE LABEL
+.3832	ac 59 1c	ldy $1c59	 LDY SYMBOP+1 ;HIGH BYTE LABEL
+.3835	20 3a 38	jsr $383a	 JSR STRSYM ;PRINT LABEL
+.3838	38		sec		 SEC ;MATCH SET CARRY
+.3839	60		rts		MATEXT RTS ;RETURN
+.383a	85 fb		sta $fb		STRSYM STA ZEROUR
+.383c	84 fc		sty $fc		 STY ZEROUR+1
+.383e	a0 00		ldy #$00	 LDY #$00
+.3840	b1 fb		lda ($fb),y	STRSY1 LDA (ZEROUR),Y
+.3842	f0 0a		beq $384e	 BEQ SYEXIT
+.3844	c9 20		cmp #$20	 CMP #$20
+.3846	f0 06		beq $384e	 BEQ SYEXIT
+.3848	20 64 28	jsr $2864	 JSR PCHAR
+.384b	c8		iny		 INY
+.384c	d0 f2		bne $3840	 BNE STRSY1
+.384e	60		rts		SYEXIT RTS
+.384f	b1 fb		lda ($fb),y	FIXSYM LDA (ZEROUR),Y
+.3851	f0 fb		beq $384e	 BEQ SYEXIT
+.3853	20 64 28	jsr $2864	 JSR PCHAR
+.3856	c8		iny		 INY
+.3857	4c 4f 38	jmp $384f	 JMP FIXSYM
+.385a	18		clc		NEXTC CLC
+.385b	ad 58 1c	lda $1c58	 LDA SYMBOP
+.385e	69 08		adc #$08	 ADC #$08
+.3860	8d 58 1c	sta $1c58	 STA SYMBOP
+.3863	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.3866	69 00		adc #$00	 ADC #$00
+.3868	8d 59 1c	sta $1c59	 STA SYMBOP+1
+.386b	cd 5d 1c	cmp $1c5d	 CMP SYMBOE+1
+.386e	90 0a		bcc $387a	 BCC COK
+.3870	d0 0a		bne $387c	 BNE NCOK
+.3872	ad 58 1c	lda $1c58	 LDA SYMBOP
+.3875	cd 5c 1c	cmp $1c5c	 CMP SYMBOE
+.3878	b0 02		bcs $387c	 BCS NCOK
+.387a	18		clc		COK CLC
+.387b	60		rts		 RTS
+.387c	38		sec		NCOK SEC
+.387d	60		rts		 RTS
+.387e	ee 58 1c	inc $1c58	INCC INC SYMBOP
+.3881	d0 03		bne $3886	 BNE *+5
+.3883	ee 59 1c	inc $1c59	 INC SYMBOP+1
+.3886	60		rts		 RTS
+.3887	ad 58 1c	lda $1c58	GETC LDA SYMBOP
+.388a	85 fb		sta $fb		 STA ZEROUR
+.388c	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.388f	85 fc		sta $fc		 STA ZEROUR+1
+.3891	a0 00		ldy #$00	 LDY #$00
+.3893	b1 fb		lda ($fb),y	 LDA (ZEROUR),Y
+.3895	60		rts		 RTS
+.3896	38		sec		EQUPRT SEC
+.3897	ad 4f 1c	lda $1c4f	 LDA TABINS
+.389a	ed 51 1c	sbc $1c51	 SBC TABINE
+.389d	8d 70 1c	sta $1c70	 STA TEMP
+.38a0	ad 50 1c	lda $1c50	 LDA TABINS+1
+.38a3	ed 52 1c	sbc $1c52	 SBC TABINE+1
+.38a6	0d 70 1c	ora $1c70	 ORA TEMP
+.38a9	f0 55		beq $3900	 BEQ EQUEND
+.38ab	20 b4 2f	jsr $2fb4	 JSR SORT
+.38ae	20 b5 2c	jsr $2cb5	 JSR COMENT
+.38b1	20 7f 2e	jsr $2e7f	 JSR PRTOTH
+.38b4	a9 84		lda #$84	 LDA #<EQUATE
+.38b6	a0 3b		ldy #$3b	 LDY #>EQUATE
+.38b8	20 0e 28	jsr $280e	 JSR STRPNT
+.38bb	20 51 27	jsr $2751	 JSR NEWLIN
+.38be	20 b5 2c	jsr $2cb5	 JSR COMENT
+.38c1	20 59 2f	jsr $2f59	EQUOP JSR GETI
+.38c4	8d 64 1c	sta $1c64	 STA WORKED
+.38c7	20 50 2f	jsr $2f50	 JSR INCI
+.38ca	20 59 2f	jsr $2f59	 JSR GETI
+.38cd	8d 65 1c	sta $1c65	 STA WORKED+1
+.38d0	20 7f 2e	jsr $2e7f	 JSR PRTOTH
+.38d3	20 b2 37	jsr $37b2	 JSR SYMOP
+.38d6	b0 03		bcs $38db	 BCS EQUOP1
+.38d8	20 13 2d	jsr $2d13	 JSR PWORK
+.38db	a9 3d		lda #$3d	EQUOP1 LDA #'='
+.38dd	20 64 28	jsr $2864	 JSR PCHAR
+.38e0	a9 24		lda #$24	 LDA #'$'
+.38e2	20 64 28	jsr $2864	 JSR PCHAR
+.38e5	20 16 2d	jsr $2d16	 JSR PWORKD
+.38e8	20 51 27	jsr $2751	 JSR NEWLIN
+.38eb	20 50 2f	jsr $2f50	 JSR INCI
+.38ee	ad 4e 1c	lda $1c4e	 LDA TABINP+1
+.38f1	cd 52 1c	cmp $1c52	 CMP TABINE+1
+.38f4	90 cb		bcc $38c1	 BCC EQUOP
+.38f6	d0 08		bne $3900	 BNE EQUEND
+.38f8	ad 4d 1c	lda $1c4d	 LDA TABINP
+.38fb	cd 51 1c	cmp $1c51	 CMP TABINE
+.38fe	90 c1		bcc $38c1	 BCC EQUOP
+.3900	20 b5 2c	jsr $2cb5	EQUEND JSR COMENT
+.3903	4c f0 2e	jmp $2ef0	 JMP RESINT
+.3906	a9 d4		lda #$d4	READXX LDA #<MSS3
+.3908	a0 3a		ldy #$3a	 LDY #>MSS3
+.390a	20 0e 28	jsr $280e	 JSR STRPNT
+.390d	20 e4 ff	jsr $ffe4	SOP2 JSR GETIN
+.3910	f0 fb		beq $390d	 BEQ SOP2
+.3912	c9 30		cmp #$30	 CMP #'0'
+.3914	f0 04		beq $391a	 BEQ SOP3
+.3916	c9 31		cmp #$31	 CMP #'1'
+.3918	d0 f3		bne $390d	 BNE SOP2
+.391a	20 d2 ff	jsr $ffd2	SOP3 JSR CHROUT
+.391d	8d 05 1d	sta $1d05	 STA TEXTER
+.3920	a9 16		lda #$16	 LDA #<LOADF
+.3922	a0 3b		ldy #$3b	 LDY #>LOADF
+.3924	20 0e 28	jsr $280e	 JSR STRPNT
+.3927	20 6f 27	jsr $276f	 JSR INSTNG
+.392a	f0 20		beq $394c	 BEQ READXF
+.392c	98		tya		 TYA
+.392d	48		pha		 PHA
+.392e	20 dd 20	jsr $20dd	 JSR INITD
+.3931	68		pla		 PLA
+.3932	a8		tay		 TAY
+.3933	a2 00		ldx #$00	 LDX #$00
+.3935	bd 86 3a	lda $3a86,x	XFILE1 LDA NAMS,X
+.3938	99 7b 1c	sta $1c7b,y	 STA BUF,Y
+.393b	c8		iny		 INY
+.393c	e8		inx		 INX
+.393d	e0 04		cpx #$04	 CPX #$04
+.393f	d0 f4		bne $3935	 BNE XFILE1
+.3941	98		tya		 TYA
+.3942	a0 1c		ldy #$1c	 LDY #>BUF
+.3944	a2 7b		ldx #$7b	 LDX #<BUF
+.3946	20 bd ff	jsr $ffbd	 JSR SETNAM
+.3949	4c 55 39	jmp $3955	 JMP REOPEN
+.394c	a9 0e		lda #$0e	READXF LDA #$0E
+.394e	a0 3a		ldy #$3a	 LDY #>NAME
+.3950	a2 7c		ldx #$7c	 LDX #<NAME
+.3952	20 bd ff	jsr $ffbd	 JSR SETNAM
+.3955	a9 03		lda #$03	REOPEN LDA #$03
+.3957	a2 08		ldx #$08	 LDX #$08
+.3959	a0 03		ldy #$03	 LDY #$03
+.395b	20 ba ff	jsr $ffba	 JSR SETLFS
+.395e	a9 00		lda #$00	 LDA #$00     ;LOAD INTO BANK 1
+.3960	a2 00		ldx #$00	 LDX #$00     ;PROGRAM IN BANK 0
+.3962	20 68 ff	jsr $ff68	 JSR SETBNK
+.3965	20 c0 ff	jsr $ffc0	 JSR OPEN
+.3968	20 17 27	jsr $2717	 JSR DISERR
+.396b	b0 3f		bcs $39ac	 BCS QUITXX
+.396d	a9 34		lda #$34	 LDA #<LOADM ;MSG LOW
+.396f	a0 3b		ldy #$3b	 LDY #>LOADM ;MSG HIGH
+.3971	20 0e 28	jsr $280e	 JSR STRPNT ;OUTPUT MSG
+.3974	a9 00		lda #$00	 LDA #$00 ;COL COUNTER
+.3976	8d 70 1c	sta $1c70	 STA TEMP
+.3979	20 bd 39	jsr $39bd	READX JSR READS ;INPUT SYMBOL
+.397c	20 3b 3a	jsr $3a3b	 JSR PUTC
+.397f	20 63 3a	jsr $3a63	 JSR LINES ;SCREEN OUT
+.3982	20 e1 ff	jsr $ffe1	 JSR STOP
+.3985	f0 05		beq $398c	 BEQ QUITX
+.3987	20 b7 ff	jsr $ffb7	 JSR READST
+.398a	f0 ed		beq $3979	 BEQ READX
+.398c	a9 03		lda #$03	QUITX LDA #$03
+.398e	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.3991	20 cc ff	jsr $ffcc	 JSR CLRCHN
+.3994	20 47 2d	jsr $2d47	 JSR CRLF
+.3997	ad 58 1c	lda $1c58	 LDA SYMBOP
+.399a	8d 5c 1c	sta $1c5c	 STA SYMBOE
+.399d	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.39a0	8d 5d 1c	sta $1c5d	 STA SYMBOE+1
+.39a3	a9 52		lda #$52	 LDA #<LOADC
+.39a5	a0 3b		ldy #$3b	 LDY #>LOADC
+.39a7	20 0e 28	jsr $280e	 JSR STRPNT
+.39aa	18		clc		 CLC
+.39ab	60		rts		 RTS
+.39ac	a9 03		lda #$03	QUITXX LDA #$03
+.39ae	20 c3 ff	jsr $ffc3	 JSR CLOSE
+.39b1	20 cc ff	jsr $ffcc	 JSR CLRCHN
+.39b4	a9 69		lda #$69	 LDA #<LOADE
+.39b6	a0 3b		ldy #$3b	 LDY #>LOADE
+.39b8	20 0e 28	jsr $280e	 JSR STRPNT
+.39bb	38		sec		 SEC
+.39bc	60		rts		 RTS
+.39bd	a2 03		ldx #$03	READS LDX #$03 ;FILE NUMBER
+.39bf	20 c6 ff	jsr $ffc6	 JSR CHKIN ;FILE IS INPUT
+.39c2	a0 02		ldy #$02	 LDY #$02 ;COUNTER
+.39c4	20 cf ff	jsr $ffcf	 JSR CHRIN ;INPUT CHAR
+.39c7	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y ;1ST CHAR
+.39ca	20 d2 ff	jsr $ffd2	 JSR CHROUT ;PRITN IT
+.39cd	c8		iny		 INY ;INC POINTER
+.39ce	20 cf ff	jsr $ffcf	READY JSR CHRIN ;NEXT CHAR
+.39d1	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y ;STORE
+.39d4	20 d2 ff	jsr $ffd2	 JSR CHROUT ;PRINT IT
+.39d7	c8		iny		 INY ;INC OFFSET
+.39d8	c0 08		cpy #$08	 CPY #$08 ;8 IS FOR NULL
+.39da	d0 f2		bne $39ce	 BNE READY ;BRANCH IF NOT
+.39dc	a9 00		lda #$00	 LDA #$00 ;NULL MARKER
+.39de	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y ;STORE AT END
+.39e1	20 59 2d	jsr $2d59	 JSR SPACE ;PRINT SPACE
+.39e4	20 24 2d	jsr $2d24	 JSR DOLLAR ;PRINT $ SIGN
+.39e7	ad 05 1d	lda $1d05	 LDA TEXTER
+.39ea	c9 30		cmp #$30	 CMP #'0'
+.39ec	f0 2f		beq $3a1d	 BEQ STDREF
+.39ee	a0 00		ldy #$00	 LDY #$00
+.39f0	20 fd 39	jsr $39fd	 JSR XGET
+.39f3	c8		iny		 INY
+.39f4	20 fd 39	jsr $39fd	 JSR XGET
+.39f7	20 cf ff	jsr $ffcf	 JSR CHRIN ;GET $0D
+.39fa	4c cc ff	jmp $ffcc	 JMP CLRCHN
+.39fd	20 cf ff	jsr $ffcf	XGET JSR CHRIN
+.3a00	20 d2 ff	jsr $ffd2	 JSR CHROUT
+.3a03	20 bf 27	jsr $27bf	 JSR BINARY
+.3a06	0a		asl a		 ASL A
+.3a07	0a		asl a		 ASL A
+.3a08	0a		asl a		 ASL A
+.3a09	0a		asl a		 ASL A
+.3a0a	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y
+.3a0d	20 cf ff	jsr $ffcf	 JSR CHRIN
+.3a10	20 d2 ff	jsr $ffd2	 JSR CHROUT
+.3a13	20 bf 27	jsr $27bf	 JSR BINARY
+.3a16	19 f9 1c	ora $1cf9,y	 ORA SYMBUF,Y
+.3a19	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y
+.3a1c	60		rts		 RTS
+.3a1d	a0 00		ldy #$00	STDREF LDY #$00 ;ZERO OFFSET
+.3a1f	20 cf ff	jsr $ffcf	 JSR CHRIN ;HIGH BYTES
+.3a22	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y ;
+.3a25	8c 73 1c	sty $1c73	 STY SAVY ;
+.3a28	20 f8 27	jsr $27f8	 JSR PRBYT ;
+.3a2b	ac 73 1c	ldy $1c73	 LDY SAVY ;
+.3a2e	c8		iny		 INY ;
+.3a2f	20 cf ff	jsr $ffcf	 JSR CHRIN ;LOW BYTE
+.3a32	99 f9 1c	sta $1cf9,y	 STA SYMBUF,Y ;
+.3a35	20 f8 27	jsr $27f8	 JSR PRBYT ;
+.3a38	4c cc ff	jmp $ffcc	 JMP CLRCHN ;KEYBOARD INPUT
+.3a3b	a0 00		ldy #$00	PUTC LDY #$00
+.3a3d	ad 58 1c	lda $1c58	 LDA SYMBOP
+.3a40	85 fb		sta $fb		 STA ZEROUR
+.3a42	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.3a45	85 fc		sta $fc		 STA ZEROUR+1
+.3a47	b9 f9 1c	lda $1cf9,y	PUT LDA SYMBUF,Y
+.3a4a	91 fb		sta ($fb),y	 STA (ZEROUR),Y
+.3a4c	c8		iny		 INY
+.3a4d	c0 09		cpy #$09	 CPY #$09
+.3a4f	d0 f6		bne $3a47	 BNE PUT
+.3a51	18		clc		 CLC
+.3a52	ad 58 1c	lda $1c58	 LDA SYMBOP
+.3a55	69 09		adc #$09	 ADC #$09
+.3a57	8d 58 1c	sta $1c58	 STA SYMBOP
+.3a5a	ad 59 1c	lda $1c59	 LDA SYMBOP+1
+.3a5d	69 00		adc #$00	 ADC #$00
+.3a5f	8d 59 1c	sta $1c59	 STA SYMBOP+1
+.3a62	60		rts		 RTS
+.3a63	ee 70 1c	inc $1c70	LINES INC TEMP
+.3a66	a9 03		lda #$03	 LDA #$03
+.3a68	cd 70 1c	cmp $1c70	 CMP TEMP
+.3a6b	f0 05		beq $3a72	 BEQ RESET
+.3a6d	a9 2e		lda #$2e	 LDA #'.'
+.3a6f	4c d2 ff	jmp $ffd2	 JMP CHROUT
+.3a72	a9 00		lda #$00	RESET LDA #$00
+.3a74	8d 70 1c	sta $1c70	 STA TEMP
+.3a77	a9 0d		lda #$0d	 LDA #$0D
+.3a79	4c d2 ff	jmp $ffd2	 JMP CHROUT
+>3a7c	30 3a 58 52 4c 4c 30 30		NAME .TEXT '0:XRLL0000'
+>3a84	30 30
+>3a86	2c 53 2c 52			NAMS .TEXT ',S,R'
+>3a8a	0d				MSS1 .BYTE $0D
+>3a8b	53 59 4d 42 4f 4c 49 43		 .TEXT 'SYMBOLIC DISASSEMBLY (Y/CR OR N)? '
+>3a93	20 44 49 53 41 53 53 45 4d 42 4c 59 20 28 59 2f
+>3aa3	43 52 20 4f 52 20 4e 29 3f 20
+>3aad	00				 .BYTE 0
+>3aae	0d				MSS2 .BYTE $0D
+>3aaf	4c 4f 41 44 20 55 53 45		 .TEXT 'LOAD USER SYMBOL TABLE (Y OR N/CR)? '
+>3ab7	52 20 53 59 4d 42 4f 4c 20 54 41 42 4c 45 20 28
+>3ac7	59 20 4f 52 20 4e 2f 43 52 29 3f 20
+>3ad3	00				 .BYTE 0
+>3ad4	0d				MSS3 .BYTE $0D
+>3ad5	46 4f 52 4d 41 54 20 30		 .TEXT 'FORMAT 0=STANDARD 1=ASCII : '
+>3add	3d 53 54 41 4e 44 41 52 44 20 31 3d 41 53 43 49
+>3aed	49 20 3a 20
+>3af1	00				 .BYTE 0
+>3af2	0d				MSS4 .BYTE $0D
+>3af3	41 50 50 45 4e 44 20 44		 .TEXT 'APPEND DEFAULT TABLE (Y OR N/CR)? '
+>3afb	45 46 41 55 4c 54 20 54 41 42 4c 45 20 28 59 20
+>3b0b	4f 52 20 4e 2f 43 52 29 3f 20
+>3b15	00				 .BYTE 0
+>3b16	0d				LOADF .BYTE $0D
+>3b17	53 59 4d 42 4f 4c 20 54		.TEXT 'SYMBOL TABLE(CR OR D:NAME): '
+>3b1f	41 42 4c 45 28 43 52 20 4f 52 20 44 3a 4e 41 4d
+>3b2f	45 29 3a 20
+>3b33	00				.BYTE 0
+>3b34	0d 0d				LOADM .BYTE $0D,$0D
+>3b36	52 45 41 44 49 4e 47 20		.TEXT 'READING SYMBOL TABLE FILE'
+>3b3e	53 59 4d 42 4f 4c 20 54 41 42 4c 45 20 46 49 4c
+>3b4e	45
+>3b4f	0d 0d				.BYTE $0D,$0D
+>3b51	00				.BYTE 0
+>3b52	0d				LOADC .BYTE $0D
+>3b53	53 59 4d 42 4f 4c 20 54		.TEXT 'SYMBOL TABLE LOADED'
+>3b5b	41 42 4c 45 20 4c 4f 41 44 45 44
+>3b66	0d 0d				.BYTE $0D,$0D
+>3b68	00				.BYTE 0
+>3b69	0d				LOADE .BYTE $0D
+>3b6a	53 59 4d 42 4f 4c 20 54		.TEXT 'SYMBOL TABLE NOT LOADED'
+>3b72	41 42 4c 45 20 4e 4f 54 20 4c 4f 41 44 45 44
+>3b81	0d 0d				.BYTE $0D,$0D
+>3b83	00				.BYTE 0
+>3b84	3b 20 45 58 54 45 52 4e		EQUATE .TEXT '; EXTERNAL ADDRESS EQUATES'
+>3b8c	41 4c 20 41 44 44 52 45 53 53 20 45 51 55 41 54
+>3b9c	45 53
+>3b9e	00				 .BYTE 0
+=17311					BITOPT = *
+.439f	a9 57		lda #$57	       LDA #<MSB1 ;TABLE TYPE
+.43a1	a0 25		ldy #$25	       LDY #>MSB1
+.43a3	20 0e 28	jsr $280e	       JSR STRPNT
+.43a6	20 e4 ff	jsr $ffe4	BOP0   JSR GETIN
+.43a9	f0 fb		beq $43a6	       BEQ BOP0
+.43ab	c9 30		cmp #$30	       CMP #'0'   ;STANDARD
+.43ad	f0 12		beq $43c1	       BEQ BSC
+.43af	c9 31		cmp #$31	       CMP #'1'   ;$2C ABS
+.43b1	f0 0e		beq $43c1	       BEQ BSC
+.43b3	c9 32		cmp #$32	       CMP #'2'   ;$24 ZP
+.43b5	f0 0a		beq $43c1	       BEQ BSC
+.43b7	c9 33		cmp #$33	       CMP #'3'   ;$2C AND $24
+.43b9	f0 06		beq $43c1	       BEQ BSC
+.43bb	c9 0d		cmp #$0d	       CMP #$0D   ;STANDARD
+.43bd	d0 e7		bne $43a6	       BNE BOP0
+.43bf	a9 30		lda #$30	       LDA #'0'
+=17345					BSC = *
+.43c1	48		pha		       PHA        ;STASH INPUT
+.43c2	20 d2 ff	jsr $ffd2	       JSR CHROUT ;OUTPUT FEEDBACK
+.43c5	68		pla		       PLA        ;POP INPUT
+.43c6	49 30		eor #$30	       EOR #$30   ;MAKE A NUMBER
+.43c8	8d cc 43	sta $43cc	       STA BITFLG ;SET FLAG
+.43cb	60		rts		       RTS
+=17356					BITFLG = *
+>43cc	aa				       .BYTE $AA
+=17357					STABLE = *
+>43cd	ff 80 49 44 42 59 54 45		 .TEXT $FF,$80,'IDBYTE',0
+>43d5	00
+>43d6	ff 81 43 49 4e 54 20 20		 .TEXT $FF,$81,'CINT  ',0
+>43de	00
+>43df	ff 84 49 4f 49 4e 49 54		 .TEXT $FF,$84,'IOINIT',0
+>43e7	00
+>43e8	ff 87 52 41 4d 54 41 53		 .TEXT $FF,$87,'RAMTAS',0
+>43f0	00
+>43f1	ff 8a 52 45 53 54 4f 52		 .TEXT $FF,$8A,'RESTOR',0
+>43f9	00
+>43fa	ff 8d 56 45 43 54 4f 52		 .TEXT $FF,$8D,'VECTOR',0
+>4402	00
+>4403	ff 90 53 45 54 4d 53 47		 .TEXT $FF,$90,'SETMSG',0
+>440b	00
+>440c	ff 93 53 45 43 4f 4e 44		 .TEXT $FF,$93,'SECOND',0
+>4414	00
+>4415	ff 96 54 4b 53 41 20 20		 .TEXT $FF,$96,'TKSA  ',0
+>441d	00
+>441e	ff 99 4d 45 4d 54 4f 50		 .TEXT $FF,$99,'MEMTOP',0
+>4426	00
+>4427	ff 9c 4d 45 4d 42 4f 54		 .TEXT $FF,$9C,'MEMBOT',0
+>442f	00
+>4430	ff 9f 53 43 4e 4b 45 59		 .TEXT $FF,$9F,'SCNKEY',0
+>4438	00
+>4439	ff a2 53 45 54 54 4d 4f		 .TEXT $FF,$A2,'SETTMO',0
+>4441	00
+>4442	ff a5 41 43 50 54 52 20		 .TEXT $FF,$A5,'ACPTR ',0
+>444a	00
+>444b	ff a8 43 49 4f 55 54 20		 .TEXT $FF,$A8,'CIOUT ',0
+>4453	00
+>4454	ff ab 55 4e 54 4c 4b 20		 .TEXT $FF,$AB,'UNTLK ',0
+>445c	00
+>445d	ff ae 55 4e 4c 53 4e 20		 .TEXT $FF,$AE,'UNLSN ',0
+>4465	00
+>4466	ff b1 4c 49 53 54 45 4e		 .TEXT $FF,$B1,'LISTEN',0
+>446e	00
+>446f	ff b4 54 41 4c 4b 20 20		 .TEXT $FF,$B4,'TALK  ',0
+>4477	00
+>4478	ff b7 52 45 41 44 53 54		 .TEXT $FF,$B7,'READST',0
+>4480	00
+>4481	ff ba 53 45 54 4c 46 53		 .TEXT $FF,$BA,'SETLFS',0
+>4489	00
+>448a	ff bd 53 45 54 4e 41 4d		 .TEXT $FF,$BD,'SETNAM',0
+>4492	00
+>4493	ff c0 4f 50 45 4e 20 20		 .TEXT $FF,$C0,'OPEN  ',0
+>449b	00
+>449c	ff c3 43 4c 4f 53 45 20		 .TEXT $FF,$C3,'CLOSE ',0
+>44a4	00
+>44a5	ff c6 43 48 4b 49 4e 20		 .TEXT $FF,$C6,'CHKIN ',0
+>44ad	00
+>44ae	ff c9 43 48 4b 4f 55 54		 .TEXT $FF,$C9,'CHKOUT',0
+>44b6	00
+>44b7	ff cc 43 4c 52 43 48 4e		 .TEXT $FF,$CC,'CLRCHN',0
+>44bf	00
+>44c0	ff cf 43 48 52 49 4e 20		 .TEXT $FF,$CF,'CHRIN ',0
+>44c8	00
+>44c9	ff d2 43 48 52 4f 55 54		 .TEXT $FF,$D2,'CHROUT',0
+>44d1	00
+>44d2	ff d5 4c 4f 41 44 20 20		 .TEXT $FF,$D5,'LOAD  ',0
+>44da	00
+>44db	ff d8 53 41 56 45 20 20		 .TEXT $FF,$D8,'SAVE  ',0
+>44e3	00
+>44e4	ff db 53 45 54 54 49 4d		 .TEXT $FF,$DB,'SETTIM',0
+>44ec	00
+>44ed	ff de 52 44 54 49 4d 20		 .TEXT $FF,$DE,'RDTIM ',0
+>44f5	00
+>44f6	ff e1 53 54 4f 50 20 20		 .TEXT $FF,$E1,'STOP  ',0
+>44fe	00
+>44ff	ff e4 47 45 54 49 4e 20		 .TEXT $FF,$E4,'GETIN ',0
+>4507	00
+>4508	ff e7 43 4c 41 4c 4c 20		 .TEXT $FF,$E7,'CLALL ',0
+>4510	00
+>4511	ff ea 55 44 54 49 4d 20		 .TEXT $FF,$EA,'UDTIM ',0
+>4519	00
+>451a	ff ed 53 43 52 45 45 4e		 .TEXT $FF,$ED,'SCREEN',0
+>4522	00
+>4523	ff f0 50 4c 4f 54 20 20		 .TEXT $FF,$F0,'PLOT  ',0
+>452b	00
+>452c	ff f3 49 4f 42 41 53 45		 .TEXT $FF,$F3,'IOBASE',0
+>4534	00
+>4535	ff fa 4e 4d 49 56 45 43		 .TEXT $FF,$FA,'NMIVEC',0
+>453d	00
+>453e	ff fc 52 45 53 56 45 43		 .TEXT $FF,$FC,'RESVEC',0
+>4546	00
+>4547	ff fe 49 52 51 56 45 43		 .TEXT $FF,$FE,'IRQVEC',0
+>454f	00
+>4550	00				UTABLE .BYTE 0
+
+;******  Return to file: disa.asm
+
+
+;******  End of listing
